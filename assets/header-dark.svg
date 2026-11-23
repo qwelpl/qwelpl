@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="840" height="184" viewBox="0 0 840 184">
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="200" viewBox="0 0 840 200">
 <style>
 .bg{fill:#0d1117}
 .card{fill:#11161d;stroke:#262c36;stroke-width:1}
@@ -16,12 +16,20 @@
 .ghost{fill:transparent}
 .hl{fill:#e6edf3;font-weight:500}
 @keyframes cyc{0%{opacity:0}3.75%{opacity:1}21.25%{opacity:1}25.00%{opacity:0}100%{opacity:0}}
-.ln{stroke:#262c36;stroke-width:1;stroke-dasharray:840;stroke-dashoffset:840;animation:draw 1.6s cubic-bezier(.6,0,.2,1) .4s forwards}
+.live{fill:#e6edf3;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.sep{stroke:#262c36;stroke-width:1}
 
 </style>
-<text x="0" y="28" class="mute r" font-size="16">hey there, i'm</text>
-<text x="-3" y="98" class="fg r" font-size="72" font-weight="700" letter-spacing="-2.5" style="animation-delay:.12s">aarav</text>
-<text x="0" y="146" class="mute f" font-size="22" style="animation-delay:.9s">i build</text>
-<text x="0" y="146" class="word" style="animation-delay:1.4s"><tspan class="ghost">i build </tspan><tspan class="hl">macOS apps</tspan></text><text x="0" y="146" class="word" style="animation-delay:4.4s"><tspan class="ghost">i build </tspan><tspan class="hl">web tools</tspan></text><text x="0" y="146" class="word" style="animation-delay:7.4s"><tspan class="ghost">i build </tspan><tspan class="hl">word games</tspan></text><text x="0" y="146" class="word" style="animation-delay:10.4s"><tspan class="ghost">i build </tspan><tspan class="hl">dev utilities</tspan></text>
-<line class="ln" x1="0" y1="174" x2="840" y2="174"/>
+<text x="2" y="48" class="mute r" font-size="18">hey there, i'm</text>
+<text x="0" y="118" class="fg r" font-size="72" font-weight="700" style="animation-delay:.12s">aarav</text>
+<text x="2" y="160" class="mute f" font-size="22" style="animation-delay:.9s">i build</text>
+<text x="2" y="160" class="word" style="animation-delay:1.4s"><tspan class="ghost">i build </tspan><tspan class="hl">macOS apps</tspan></text><text x="2" y="160" class="word" style="animation-delay:4.4s"><tspan class="ghost">i build </tspan><tspan class="hl">web tools</tspan></text><text x="2" y="160" class="word" style="animation-delay:7.4s"><tspan class="ghost">i build </tspan><tspan class="hl">word games</tspan></text><text x="2" y="160" class="word" style="animation-delay:10.4s"><tspan class="ghost">i build </tspan><tspan class="hl">dev utilities</tspan></text>
+<g class="f" style="animation-delay:.4s">
+<rect class="card" x="500.5" y="22.5" width="339" height="161" rx="12"/>
+<circle class="live" cx="526" cy="47" r="3.5"/>
+<text x="538" y="51" class="mute" font-size="12">right now</text>
+<line class="sep" x1="522" y1="62" x2="818" y2="62"/>
+</g>
+<g class="r" style="animation-delay:0.60s"><text x="522" y="78" class="faint" font-size="12">latest</text><text x="818" y="78" class="fg mono" font-size="12" text-anchor="end">barloom</text></g><g class="r" style="animation-delay:0.68s"><text x="522" y="99" class="faint" font-size="12">pushed</text><text x="818" y="99" class="fg mono" font-size="12" text-anchor="end">today</text></g><g class="r" style="animation-delay:0.76s"><text x="522" y="120" class="faint" font-size="12">commits</text><text x="818" y="120" class="fg mono" font-size="12" text-anchor="end">1,152</text></g><g class="r" style="animation-delay:0.84s"><text x="522" y="141" class="faint" font-size="12">top lang</text><text x="818" y="141" class="fg mono" font-size="12" text-anchor="end">python</text></g><g class="r" style="animation-delay:0.92s"><text x="522" y="162" class="faint" font-size="12">based in</text><text x="818" y="162" class="fg mono" font-size="12" text-anchor="end">united states</text></g>
 </svg>

@@ -6,6 +6,13 @@ from html import escape
 from pathlib import Path
 
 LOGIN = "qwelpl"
+EMAILS = {
+    "aaravgulrajani19@gmail.com",
+    "qwelpl@users.noreply.github.com",
+    "aarav@mac-mini.local",
+    "aarav@aaravs-macbook-air.local",
+    "aarav@ashleys_laptop.fusdk12.net",
+}
 OUT = Path(__file__).resolve().parent.parent / "assets"
 
 THEMES = {
@@ -93,6 +100,33 @@ def gql(query, variables=None):
     return body["data"]
 
 
+def count_commits():
+    repos = gql(
+        """query{viewer{repositories(first:100,ownerAffiliations:OWNER){nodes{name refs(refPrefix:"refs/heads/",first:100){nodes{name}}}}}}"""
+    )["viewer"]["repositories"]["nodes"]
+    mine = set()
+    for r in repos:
+        seen = set()
+        for b in r["refs"]["nodes"]:
+            cursor = None
+            while True:
+                h = gql(
+                    """query($o:String!,$n:String!,$b:String!,$c:String){repository(owner:$o,name:$n){ref(qualifiedName:$b){target{...on Commit{
+                    history(first:100,after:$c){pageInfo{hasNextPage endCursor} nodes{oid author{email user{login}}}}}}}}}""",
+                    {"o": LOGIN, "n": r["name"], "b": "refs/heads/" + b["name"], "c": cursor},
+                )["repository"]["ref"]["target"]["history"]
+                fresh = [c for c in h["nodes"] if c["oid"] not in seen]
+                for c in fresh:
+                    seen.add(c["oid"])
+                    user = (c["author"]["user"] or {}).get("login")
+                    if user == LOGIN or (c["author"]["email"] or "").lower() in EMAILS:
+                        mine.add(c["oid"])
+                if not fresh or not h["pageInfo"]["hasNextPage"]:
+                    break
+                cursor = h["pageInfo"]["endCursor"]
+    return len(mine)
+
+
 def fetch():
     years = gql(
         "query($l:String!){user(login:$l){contributionsCollection{contributionYears}}}",
@@ -105,10 +139,15 @@ def fetch():
         c = gql(
             """query($l:String!,$f:DateTime!,$t:DateTime!){user(login:$l){contributionsCollection(from:$f,to:$t){
             totalCommitContributions restrictedContributionsCount totalPullRequestContributions
+            commitContributionsByRepository(maxRepositories:100){repository{owner{login}} contributions{totalCount}}
             contributionCalendar{totalContributions weeks{contributionDays{date contributionCount}}}}}}""",
             {"l": LOGIN, "f": f"{y}-01-01T00:00:00Z", "t": f"{y}-12-31T23:59:59Z"},
         )["user"]["contributionsCollection"]
-        commits += c["totalCommitContributions"]
+        commits += sum(
+            x["contributions"]["totalCount"]
+            for x in c["commitContributionsByRepository"]
+            if x["repository"]["owner"]["login"] != LOGIN
+        )
         prs += c["totalPullRequestContributions"]
         contributions += c["contributionCalendar"]["totalContributions"]
         for w in c["contributionCalendar"]["weeks"]:
@@ -144,8 +183,15 @@ def fetch():
         else:
             break
 
+    latest = gql(
+        """query($l:String!){user(login:$l){repositories(first:5,privacy:PUBLIC,ownerAffiliations:OWNER,orderBy:{field:PUSHED_AT,direction:DESC}){nodes{name pushedAt}}}}""",
+        {"l": LOGIN},
+    )["user"]["repositories"]["nodes"]
+    latest = next(r for r in latest if r["name"] != LOGIN)
+
     return {
-        "commits": commits,
+        "commits": commits + count_commits(),
+        "latest": latest,
         "contributions": contributions,
         "prs": prs,
         "repos": repos["totalCount"],
@@ -174,31 +220,65 @@ def style(t, extra=""):
 </style>"""
 
 
-def header(t):
-    w, h = 840, 184
+def ago(iso):
+    d = datetime.now(timezone.utc) - datetime.fromisoformat(iso.replace("Z", "+00:00"))
+    if d.days >= 1:
+        return f"{d.days}d ago"
+    if d.seconds >= 3600:
+        return f"{d.seconds // 3600}h ago"
+    return "today"
+
+
+def header(t, s):
+    w, h = 840, 200
     words = ["macOS apps", "web tools", "word games", "dev utilities"]
     cycle = len(words) * 3
     pct = 100 / len(words)
     cyc = []
     for i, word in enumerate(words):
         cyc.append(
-            f'<text x="0" y="146" class="word" style="animation-delay:{1.4 + i * 3}s">'
+            f'<text x="2" y="160" class="word" style="animation-delay:{1.4 + i * 3}s">'
             f'<tspan class="ghost">i build </tspan><tspan class="hl">{escape(word)}</tspan></text>'
+        )
+    top = s["langs"][0][0].lower() if s["langs"] else "-"
+    rows = [
+        ("latest", s["latest"]["name"]),
+        ("pushed", ago(s["latest"]["pushedAt"])),
+        ("commits", f"{s['commits']:,}"),
+        ("top lang", top),
+        ("based in", "united states"),
+    ]
+    px, py, pw, ph = 500, 22, 340, 162
+    panel = []
+    for i, (k, v) in enumerate(rows):
+        y = py + 56 + i * 21
+        panel.append(
+            f'<g class="r" style="animation-delay:{0.6 + i * 0.08:.2f}s">'
+            f'<text x="{px + 22}" y="{y}" class="faint" font-size="12">{k}</text>'
+            f'<text x="{px + pw - 22}" y="{y}" class="fg mono" font-size="12" text-anchor="end">{escape(v)}</text></g>'
         )
     extra = f"""
 .word{{font-family:{SANS};font-size:22px;opacity:0;animation:cyc {cycle}s ease-in-out infinite}}
 .ghost{{fill:transparent}}
 .hl{{fill:{t['fg']};font-weight:500}}
 @keyframes cyc{{0%{{opacity:0}}{pct*0.15:.2f}%{{opacity:1}}{pct*0.85:.2f}%{{opacity:1}}{pct:.2f}%{{opacity:0}}100%{{opacity:0}}}}
-.ln{{stroke:{t['border']};stroke-width:1;stroke-dasharray:840;stroke-dashoffset:840;animation:draw 1.6s cubic-bezier(.6,0,.2,1) .4s forwards}}
+.live{{fill:{t['fg']};animation:pulse 2.4s ease-in-out infinite}}
+@keyframes pulse{{0%,100%{{opacity:1}}50%{{opacity:.25}}}}
+.sep{{stroke:{t['border']};stroke-width:1}}
 """
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
 {style(t, extra)}
-<text x="0" y="28" class="mute r" font-size="16">hey there, i'm</text>
-<text x="-3" y="98" class="fg r" font-size="72" font-weight="700" letter-spacing="-2.5" style="animation-delay:.12s">aarav</text>
-<text x="0" y="146" class="mute f" font-size="22" style="animation-delay:.9s">i build</text>
+<text x="2" y="48" class="mute r" font-size="18">hey there, i'm</text>
+<text x="0" y="118" class="fg r" font-size="72" font-weight="700" style="animation-delay:.12s">aarav</text>
+<text x="2" y="160" class="mute f" font-size="22" style="animation-delay:.9s">i build</text>
 {''.join(cyc)}
-<line class="ln" x1="0" y1="174" x2="{w}" y2="174"/>
+<g class="f" style="animation-delay:.4s">
+<rect class="card" x="{px + .5}" y="{py + .5}" width="{pw - 1}" height="{ph - 1}" rx="12"/>
+<circle class="live" cx="{px + 26}" cy="{py + 25}" r="3.5"/>
+<text x="{px + 38}" y="{py + 29}" class="mute" font-size="12">right now</text>
+<line class="sep" x1="{px + 22}" y1="{py + 40}" x2="{px + pw - 22}" y2="{py + 40}"/>
+</g>
+{''.join(panel)}
 </svg>"""
 
 
@@ -361,7 +441,7 @@ def main():
     OUT.mkdir(exist_ok=True)
     s = fetch()
     for name, t in THEMES.items():
-        (OUT / f"header-{name}.svg").write_text(header(t))
+        (OUT / f"header-{name}.svg").write_text(header(t, s))
         (OUT / f"stats-{name}.svg").write_text(stats(t, s))
         (OUT / f"langs-{name}.svg").write_text(languages(t, s))
         for i, (slug, label, icon) in enumerate(LINKS):
