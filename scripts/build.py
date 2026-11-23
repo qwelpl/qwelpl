@@ -34,6 +34,11 @@ THEMES = {
 SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif"
 MONO = "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace"
 
+LINKS = [
+    ("site", "tile-drop.com/q_welpl", "web"),
+    ("email", "say hi", "mail"),
+]
+
 PROJECTS = [
     {
         "slug": "barloom",
@@ -170,49 +175,52 @@ def style(t, extra=""):
 
 
 def header(t):
-    w, h = 840, 220
+    w, h = 840, 184
     words = ["macOS apps", "web tools", "word games", "dev utilities"]
     cycle = len(words) * 3
+    pct = 100 / len(words)
     cyc = []
     for i, word in enumerate(words):
         cyc.append(
-            f'<text x="0" y="0" class="fg word" style="animation-delay:{1.6 + i * 3}s">{escape(word)}</text>'
+            f'<text x="0" y="146" class="word" style="animation-delay:{1.4 + i * 3}s">'
+            f'<tspan class="ghost">i build </tspan><tspan class="hl">{escape(word)}</tspan></text>'
         )
-    pct = 100 / len(words)
     extra = f"""
-.word{{font-size:22px;font-weight:500;opacity:0;animation:cyc {cycle}s ease-in-out infinite}}
-@keyframes cyc{{0%{{opacity:0;transform:translateY(10px)}}{pct*0.12:.2f}%{{opacity:1;transform:translateY(0)}}{pct*0.88:.2f}%{{opacity:1;transform:translateY(0)}}{pct:.2f}%{{opacity:0;transform:translateY(-10px)}}100%{{opacity:0}}}}
-.ln{{stroke:{t['border']};stroke-width:1;stroke-dasharray:840;stroke-dashoffset:840;animation:draw 1.6s cubic-bezier(.6,0,.2,1) .3s forwards}}
-.dot{{fill:{t['faint']};opacity:.0;animation:twinkle 6s ease-in-out infinite}}
-@keyframes twinkle{{0%,100%{{opacity:.05}}50%{{opacity:.35}}}}
-.cursor{{fill:{t['fg']};animation:blink 1.1s steps(1) infinite}}
-@keyframes blink{{50%{{opacity:0}}}}
+.word{{font-family:{SANS};font-size:22px;opacity:0;animation:cyc {cycle}s ease-in-out infinite}}
+.ghost{{fill:transparent}}
+.hl{{fill:{t['fg']};font-weight:500}}
+@keyframes cyc{{0%{{opacity:0}}{pct*0.15:.2f}%{{opacity:1}}{pct*0.85:.2f}%{{opacity:1}}{pct:.2f}%{{opacity:0}}100%{{opacity:0}}}}
+.ln{{stroke:{t['border']};stroke-width:1;stroke-dasharray:840;stroke-dashoffset:840;animation:draw 1.6s cubic-bezier(.6,0,.2,1) .4s forwards}}
 """
-    dots = []
-    for gx in range(0, 21):
-        for gy in range(0, 6):
-            x = 440 + gx * 19
-            y = 30 + gy * 26
-            d = ((gx * 7 + gy * 13) % 23) / 23 * 6
-            dots.append(f'<circle class="dot" cx="{x}" cy="{y}" r="1.4" style="animation-delay:{d:.2f}s"/>')
-    letters = []
-    x = 0
-    for i, ch in enumerate("aarav"):
-        letters.append(
-            f'<tspan class="r" style="animation-delay:{0.1 + i * 0.08:.2f}s">{ch}</tspan>'
-        )
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
 {style(t, extra)}
-<g>{''.join(dots)}</g>
-<text x="0" y="40" class="faint f" font-size="13" style="animation-delay:.1s">hey there, i'm</text>
-<text x="-4" y="112" class="fg" font-size="76" font-weight="700" letter-spacing="-3">{''.join(letters)}</text>
-<rect class="cursor" x="192" y="62" width="4" height="58" rx="1"/>
-<g class="f" style="animation-delay:1.1s">
-<text x="0" y="160" class="mute" font-size="22">i build</text>
+<text x="0" y="28" class="mute r" font-size="16">hey there, i'm</text>
+<text x="-3" y="98" class="fg r" font-size="72" font-weight="700" letter-spacing="-2.5" style="animation-delay:.12s">aarav</text>
+<text x="0" y="146" class="mute f" font-size="22" style="animation-delay:.9s">i build</text>
+{''.join(cyc)}
+<line class="ln" x1="0" y1="174" x2="{w}" y2="174"/>
+</svg>"""
+
+
+def pill(t, label, icon, i):
+    tw = len(label) * 7.6
+    w, h = int(tw + 50), 32
+    extra = f"""
+.pl{{fill:{t['card']};stroke:{t['border']};stroke-width:1}}
+.ic{{stroke:{t['mute']};stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round}}
+"""
+    icons = {
+        "web": '<circle cx="0" cy="0" r="6"/><path d="M-6 0h12M0-6c2.5 3 2.5 9 0 12M0-6c-2.5 3-2.5 9 0 12"/>',
+        "mail": '<rect x="-6.5" y="-4.5" width="13" height="9" rx="1.5"/><path d="M-6 -3.5l6 4.5 6-4.5"/>',
+        "gh": '<path d="M-5 -1l-3 3 3 3M5 -1l3 3-3 3M2 -6l-4 13"/>',
+    }
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
+{style(t, extra)}
+<g class="r" style="animation-delay:{1.2 + i * 0.1:.2f}s">
+<rect class="pl" x=".5" y=".5" width="{w - 1}" height="{h - 1}" rx="{h / 2 - .5}"/>
+<g class="ic" transform="translate(20,16)">{icons[icon]}</g>
+<text x="34" y="20.5" class="fg" font-size="13" font-weight="500">{escape(label)}</text>
 </g>
-<g transform="translate(102,160)">{''.join(cyc)}</g>
-<line class="ln" x1="0" y1="196" x2="{w}" y2="196"/>
-<text x="0" y="216" class="faint f" font-size="12" style="animation-delay:1.4s">united states  ·  shipping things for fun</text>
 </svg>"""
 
 
@@ -356,6 +364,8 @@ def main():
         (OUT / f"header-{name}.svg").write_text(header(t))
         (OUT / f"stats-{name}.svg").write_text(stats(t, s))
         (OUT / f"langs-{name}.svg").write_text(languages(t, s))
+        for i, (slug, label, icon) in enumerate(LINKS):
+            (OUT / f"link-{slug}-{name}.svg").write_text(pill(t, label, icon, i))
         for i, p in enumerate(PROJECTS):
             (OUT / f"{p['slug']}-{name}.svg").write_text(card(t, p, i % 2))
     print(json.dumps({k: v for k, v in s.items() if k not in ("days", "langs")}))

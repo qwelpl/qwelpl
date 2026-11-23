@@ -1,9 +1,7 @@
 <picture><source media="(prefers-color-scheme: dark)" srcset="assets/header-dark.svg"><img alt="hey, i'm aarav" src="assets/header-light.svg" width="100%"></picture>
 
-<p>
-<a href="https://tile-drop.com/q_welpl"><img alt="website" src="https://img.shields.io/badge/website-tile--drop.com-24292f?style=flat-square&labelColor=24292f&color=57606a"></a>
-<a href="mailto:aaravgulrajani19@gmail.com"><img alt="email" src="https://img.shields.io/badge/email-say%20hi-24292f?style=flat-square&labelColor=24292f&color=57606a"></a>
-</p>
+<a href="https://tile-drop.com/q_welpl"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/link-site-dark.svg"><img alt="website" src="assets/link-site-light.svg"></picture></a>&nbsp;
+<a href="mailto:aaravgulrajani19@gmail.com"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/link-email-dark.svg"><img alt="email" src="assets/link-email-light.svg"></picture></a>
 
 <br>
 
