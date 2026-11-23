@@ -1,0 +1,27 @@
+name: stats
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/build.py
+        env:
+          GH_TOKEN: ${{ secrets.STATS_TOKEN || github.token }}
+      - run: |
+          git config user.name "q_welpl"
+          git config user.email "aaravgulrajani19@gmail.com"
+          git add assets
+          git diff --cached --quiet || git commit -m "stats refresh"
+          git push

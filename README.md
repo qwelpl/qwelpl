@@ -1,81 +1,30 @@
-<div align="center">
-
-### hey, i'm aarav
-
-building small tools and apps i actually want to use — mostly macOS, web, and whatever rabbit hole i'm in this week.
-
-[website](https://tile-drop.com/q_welpl) &nbsp;·&nbsp; [email](mailto:aaravgulrajani19@gmail.com)
-
-</div>
-
-<br>
-
-#### projects
-
-<table>
-<tr>
-<td width="50%" valign="top">
-
-**[barloom](https://github.com/qwelpl/barloom)**<br>
-<sub>a windows 11–style taskbar for macOS that replaces the dock. live thumbnails, pinned apps, per-window buttons.</sub><br>
-<sub><code>swift</code></sub>
-
-</td>
-<td width="50%" valign="top">
-
-**[peace](https://github.com/qwelpl/peacemusic)**<br>
-<sub>a calmer front end for apple music — album art visualizers and synced lyrics, no dev token needed.</sub><br>
-<sub><code>swift</code></sub>
-
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
-
-**[quovine](https://stem-nb.vercel.app)**<br>
-<sub>a collaborative doc editor with live cursors, in-doc chat, and version history.</sub><br>
-<sub><code>next.js</code> <code>supabase</code></sub>
-
-</td>
-<td width="50%" valign="top">
-
-**[wildfire](https://github.com/qwelpl/wildfire)**<br>
-<sub>a daily word puzzle. burn the whole 5×5 board in as few words as you can.</sub><br>
-<sub><code>javascript</code></sub>
-
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
-
-**[tiledrop](https://tiledrop.vercel.app)**<br>
-<sub>the thing powering my website.</sub><br>
-<sub><code>typescript</code></sub>
-
-</td>
-<td width="50%" valign="top">
-
-**[mirror-repo](https://github.com/qwelpl/mirror-repo)**<br>
-<sub>one command → paired gitlab + github repos with push mirroring.</sub><br>
-<sub><code>shell</code></sub>
-
-</td>
-</tr>
-</table>
-
-<br>
-
-#### stack
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/header-dark.svg"><img alt="hey, i'm aarav" src="assets/header-light.svg" width="100%"></picture>
 
 <p>
-<img src="https://skillicons.dev/icons?i=swift,ts,js,python,cpp,java,nextjs,react,svelte,supabase,vercel&theme=dark&perline=11" height="36" />
+<a href="https://tile-drop.com/q_welpl"><img alt="website" src="https://img.shields.io/badge/website-tile--drop.com-24292f?style=flat-square&labelColor=24292f&color=57606a"></a>
+<a href="mailto:aaravgulrajani19@gmail.com"><img alt="email" src="https://img.shields.io/badge/email-say%20hi-24292f?style=flat-square&labelColor=24292f&color=57606a"></a>
 </p>
 
 <br>
 
-#### activity
+### projects
 
-<p>
-<img src="https://github-readme-stats.vercel.app/api?username=qwelpl&show_icons=true&hide_border=true&hide_title=true&bg_color=00000000&text_color=8b949e&icon_color=8b949e&title_color=8b949e&include_all_commits=true&count_private=true" height="140" />
-<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=qwelpl&layout=compact&hide_border=true&hide_title=true&bg_color=00000000&text_color=8b949e&langs_count=6" height="140" />
-</p>
+<a href="https://github.com/qwelpl/barloom"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/barloom-dark.svg"><img alt="barloom" src="assets/barloom-light.svg" width="49%"></picture></a>&nbsp;<a href="https://github.com/qwelpl/peacemusic"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/peace-dark.svg"><img alt="peace" src="assets/peace-light.svg" width="49%"></picture></a>
+
+<a href="https://stem-nb.vercel.app"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/quovine-dark.svg"><img alt="quovine" src="assets/quovine-light.svg" width="49%"></picture></a>&nbsp;<a href="https://github.com/qwelpl/wildfire"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/wildfire-dark.svg"><img alt="wildfire" src="assets/wildfire-light.svg" width="49%"></picture></a>
+
+<a href="https://tiledrop.vercel.app"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/tiledrop-dark.svg"><img alt="tiledrop" src="assets/tiledrop-light.svg" width="49%"></picture></a>&nbsp;<a href="https://github.com/qwelpl/mirror-repo"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/mirror-repo-dark.svg"><img alt="mirror-repo" src="assets/mirror-repo-light.svg" width="49%"></picture></a>
+
+<br>
+
+### activity
+
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg"><img alt="activity" src="assets/stats-light.svg" width="100%"></picture>
+
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/langs-dark.svg"><img alt="languages" src="assets/langs-light.svg" width="100%"></picture>
+
+<br>
+
+### stack
+
+<img src="https://skillicons.dev/icons?i=swift,ts,js,python,cpp,java,nextjs,react,svelte,supabase,vercel&theme=dark&perline=11" height="34" />

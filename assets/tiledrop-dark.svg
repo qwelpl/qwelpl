@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="410" height="132" viewBox="0 0 410 132">
+<style>
+.bg{fill:#0d1117}
+.card{fill:#11161d;stroke:#262c36;stroke-width:1}
+.fg{fill:#e6edf3;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif}
+.mute{fill:#8b949e;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif}
+.faint{fill:#6e7681;font-family:ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace}
+.mono{font-family:ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes draw{to{stroke-dashoffset:0}}
+.r{opacity:0;animation:rise .8s cubic-bezier(.2,.7,.2,1) forwards}
+.f{opacity:0;animation:fade 1s ease forwards}
+
+.edge{fill:none;stroke:#e6edf3;stroke-width:1.2;stroke-dasharray:1100;stroke-dashoffset:1100;opacity:.55;animation:draw 1.8s cubic-bezier(.6,0,.2,1) 0.00s forwards, fade-out 1.2s ease 1.90s forwards}
+@keyframes fade-out{to{opacity:0}}
+.tag{fill:none;stroke:#262c36}
+.arrow{stroke:#8b949e;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+</style>
+<rect class="card" x=".5" y=".5" width="409" height="131" rx="12"/>
+<rect class="edge" x=".5" y=".5" width="409" height="131" rx="12"/>
+<text x="24" y="38" class="fg r" font-size="17" font-weight="600" style="animation-delay:0.20s">tiledrop</text>
+<g class="r" style="animation-delay:0.30s"><path class="arrow" d="M376 26 l8 8 l-8 8 M368 34 h15"/></g>
+<text x="24" y="62" class="mute r" font-size="13" style="animation-delay:0.40s">the thing powering my website.</text>
+<text x="24" y="80" class="mute r" font-size="13" style="animation-delay:0.48s"></text>
+<g class="f" style="animation-delay:0.70s"><rect class="tag" x="24" y="96" width="90" height="20" rx="10"/><text x="33" y="110" class="faint" font-size="11">typescript</text></g><g class="f" style="animation-delay:0.70s"><rect class="tag" x="122.0" y="96" width="40" height="20" rx="10"/><text x="131.0" y="110" class="faint" font-size="11">web</text></g>
+</svg>
