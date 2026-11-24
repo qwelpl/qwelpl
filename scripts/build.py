@@ -39,6 +39,43 @@ LINKS = [
     ("email", "say hi", "mail"),
 ]
 
+LANG_ICONS = {
+    "Swift": "swift",
+    "Python": "py",
+    "Jupyter Notebook": "py",
+    "TypeScript": "ts",
+    "JavaScript": "js",
+    "HTML": "html",
+    "CSS": "css",
+    "C++": "cpp",
+    "C": "c",
+    "Java": "java",
+    "Shell": "bash",
+    "Ruby": "ruby",
+    "Svelte": "svelte",
+    "Go": "go",
+    "Rust": "rust",
+    "Kotlin": "kotlin",
+    "Dart": "dart",
+    "PHP": "php",
+    "Lua": "lua",
+}
+
+DEP_ICONS = {
+    "next": "nextjs",
+    "react": "react",
+    "svelte": "svelte",
+    "vue": "vue",
+    "@supabase/supabase-js": "supabase",
+    "tailwindcss": "tailwind",
+    "vite": "vite",
+    "express": "express",
+    "three": "threejs",
+    "electron": "electron",
+    "firebase": "firebase",
+    "prisma": "prisma",
+}
+
 PROJECTS = [
     {
         "slug": "barloom",
@@ -99,7 +136,9 @@ def fetch():
         followers{totalCount}
         contributionsCollection{contributionCalendar{totalContributions weeks{contributionDays{date contributionCount}}}}
         repositories(first:100,privacy:PUBLIC,ownerAffiliations:OWNER,orderBy:{field:PUSHED_AT,direction:DESC}){
-        totalCount nodes{name pushedAt isFork stargazerCount languages(first:10,orderBy:{field:SIZE,direction:DESC}){edges{size node{name}}}}}}}""",
+        totalCount nodes{name pushedAt isFork stargazerCount homepageUrl
+        pkg:object(expression:"HEAD:package.json"){...on Blob{text}}
+        languages(first:10,orderBy:{field:SIZE,direction:DESC}){edges{size node{name}}}}}}}""",
         {"l": LOGIN},
     )["user"]
 
@@ -128,6 +167,23 @@ def fetch():
         else:
             break
 
+    frameworks = {}
+    for r in u["repositories"]["nodes"]:
+        if r["isFork"]:
+            continue
+        found = set()
+        if r["pkg"]:
+            try:
+                pkg = json.loads(r["pkg"]["text"])
+            except ValueError:
+                pkg = {}
+            deps = {**pkg.get("dependencies", {}), **pkg.get("devDependencies", {})}
+            found |= {DEP_ICONS[d] for d in deps if d in DEP_ICONS}
+        if "vercel.app" in (r["homepageUrl"] or ""):
+            found.add("vercel")
+        for f in found:
+            frameworks[f] = frameworks.get(f, 0) + 1
+
     latest = next(r for r in u["repositories"]["nodes"] if r["name"] != LOGIN and not r["isFork"])
 
     return {
@@ -140,6 +196,7 @@ def fetch():
         "latest": latest,
         "days": days,
         "langs": sorted(langs.items(), key=lambda kv: -kv[1]),
+        "frameworks": sorted(frameworks, key=lambda k: -frameworks[k]),
     }
 
 
@@ -379,6 +436,21 @@ def languages(t, s):
 </svg>"""
 
 
+def stack(s, theme):
+    icons = []
+    for name, _ in s["langs"]:
+        i = LANG_ICONS.get(name)
+        if i and i not in icons:
+            icons.append(i)
+    for f in s["frameworks"]:
+        if f not in icons:
+            icons.append(f)
+    url = f"https://skillicons.dev/icons?i={','.join(icons[:14])}&theme={theme}&perline=14"
+    req = urllib.request.Request(url, headers={"User-Agent": "profile-build"})
+    with urllib.request.urlopen(req) as r:
+        return r.read().decode()
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     s = fetch()
@@ -390,7 +462,8 @@ def main():
             (OUT / f"link-{slug}-{name}.svg").write_text(pill(t, label, icon, i))
         for i, p in enumerate(PROJECTS):
             (OUT / f"{p['slug']}-{name}.svg").write_text(card(t, p, i % 2))
-    print(json.dumps({k: v for k, v in s.items() if k not in ("days", "langs")}))
+        (OUT / f"stack-{name}.svg").write_text(stack(s, name))
+    print(json.dumps({k: v for k, v in s.items() if k not in ("days", "langs", "latest")}))
 
 
 if __name__ == "__main__":

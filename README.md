@@ -25,4 +25,4 @@
 
 ### stack
 
-<img src="https://skillicons.dev/icons?i=swift,ts,js,python,cpp,java,nextjs,react,svelte,supabase,vercel&theme=dark&perline=11" height="34" />
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/stack-dark.svg"><img alt="stack" src="assets/stack-light.svg" height="34"></picture>
