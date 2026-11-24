@@ -308,6 +308,11 @@ def pill(t, label, icon, i):
 
 def card(t, p, i):
     w, h = 410, 132
+    owner, _, repo = p["name"].rpartition(" / ")
+    title = escape(repo)
+    if owner:
+        title = f'<tspan class="mute" font-weight="400">{escape(owner)} / </tspan>{title}'
+
     extra = f"""
 .edge{{fill:none;stroke:{t['fg']};stroke-width:1.2;stroke-dasharray:1100;stroke-dashoffset:1100;opacity:.55;animation:draw 1.8s cubic-bezier(.6,0,.2,1) {0.15 * i:.2f}s forwards, fade-out 1.2s ease {1.9 + 0.15 * i:.2f}s forwards}}
 @keyframes fade-out{{to{{opacity:0}}}}
@@ -328,7 +333,7 @@ def card(t, p, i):
 {style(t, extra)}
 <rect class="card" x=".5" y=".5" width="{w - 1}" height="{h - 1}" rx="12"/>
 <rect class="edge" x=".5" y=".5" width="{w - 1}" height="{h - 1}" rx="12"/>
-<text x="24" y="38" class="fg r" font-size="17" font-weight="600" style="animation-delay:{d + 0.2:.2f}s">{escape(p['name'])}</text>
+<text x="24" y="38" class="fg r" font-size="17" font-weight="600" style="animation-delay:{d + 0.2:.2f}s">{title}</text>
 <g class="r" style="animation-delay:{d + 0.3:.2f}s"><path class="arrow" d="M376 26 l8 8 l-8 8 M368 34 h15"/></g>
 <text x="24" y="62" class="mute r" font-size="13" style="animation-delay:{d + 0.4:.2f}s">{escape(p['desc'][0])}</text>
 <text x="24" y="80" class="mute r" font-size="13" style="animation-delay:{d + 0.48:.2f}s">{escape(p['desc'][1])}</text>
@@ -464,9 +469,81 @@ def stack(s, theme):
         return r.read().decode()
 
 
+def contributed():
+    repos = gql(
+        """query($l:String!){user(login:$l){repositoriesContributedTo(first:20,includeUserRepositories:false,
+        contributionTypes:[COMMIT,PULL_REQUEST,ISSUE,PULL_REQUEST_REVIEW]){nodes{
+        nameWithOwner name owner{login} url description stargazerCount isPrivate primaryLanguage{name}}}}}""",
+        {"l": LOGIN},
+    )["user"]["repositoriesContributedTo"]["nodes"]
+    out = []
+    for r in repos:
+        if r["isPrivate"]:
+            continue
+        found = gql(
+            """query($q:String!){search(query:$q,type:ISSUE,first:50){nodes{
+            ...on PullRequest{merged} ...on Issue{number}}}}""",
+            {"q": f"author:{LOGIN} repo:{r['nameWithOwner']}"},
+        )["search"]["nodes"]
+        merged = sum(1 for n in found if n.get("merged"))
+        prs = sum(1 for n in found if "merged" in n)
+        issues = sum(1 for n in found if "number" in n)
+        tags = []
+        if r["primaryLanguage"]:
+            tags.append(r["primaryLanguage"]["name"].lower())
+        if r["stargazerCount"]:
+            tags.append(f"{r['stargazerCount']} stars")
+        if merged:
+            tags.append(f"{merged} merged pr" + ("s" if merged > 1 else ""))
+        elif prs:
+            tags.append(f"{prs} pr" + ("s" if prs > 1 else ""))
+        if issues:
+            tags.append(f"{issues} issue" + ("s" if issues > 1 else ""))
+        out.append({
+            "slug": "contrib-" + r["nameWithOwner"].replace("/", "-").lower(),
+            "name": f"{r['owner']['login']} / {r['name']}",
+            "desc": wrap(r["description"] or "", 46),
+            "tags": tags,
+            "url": f"{r['url']}/pulls?q=is%3Apr+author%3A{LOGIN}" if prs else f"{r['url']}/issues?q=is%3Aissue+author%3A{LOGIN}",
+            "stars": r["stargazerCount"],
+        })
+    return sorted(out, key=lambda c: -c["stars"])
+
+
+def wrap(text, width):
+    lines = [""]
+    for word in text.split():
+        if len(lines[-1]) + len(word) + 1 > width and lines[-1]:
+            if len(lines) == 2:
+                lines[-1] = lines[-1].rstrip(" ,.") + "..."
+                break
+            lines.append("")
+        lines[-1] = (lines[-1] + " " + word).strip()
+    return (lines + [""])[:2]
+
+
+def pic(slug, alt, width="49%"):
+    return (
+        f'<picture><source media="(prefers-color-scheme: dark)" srcset="assets/{slug}-dark.svg">'
+        f'<img alt="{escape(alt)}" src="assets/{slug}-light.svg" width="{width}"></picture>'
+    )
+
+
+def write_readme(contrib):
+    readme = OUT.parent / "README.md"
+    text = readme.read_text()
+    start = text.index("### contributed to")
+    end = text.index("### activity")
+    links = [f'<a href="{c["url"]}">{pic(c["slug"], c["name"])}</a>' for c in contrib]
+    rows = ["&nbsp;".join(links[i:i + 2]) for i in range(0, len(links), 2)]
+    block = "### contributed to\n\n" + "\n\n".join(rows) + "\n\n<br>\n\n"
+    readme.write_text(text[:start] + block + text[end:])
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     s = fetch()
+    contrib = contributed()
     for name, t in THEMES.items():
         (OUT / f"header-{name}.svg").write_text(header(t, s))
         (OUT / f"stats-{name}.svg").write_text(stats(t, s))
@@ -476,6 +553,12 @@ def main():
         for i, p in enumerate(PROJECTS):
             (OUT / f"{p['slug']}-{name}.svg").write_text(card(t, p, i % 2))
         (OUT / f"stack-{name}.svg").write_text(stack(s, name))
+        for i, c in enumerate(contrib):
+            (OUT / f"{c['slug']}-{name}.svg").write_text(card(t, c, i % 2))
+    for old in OUT.glob("contrib-*.svg"):
+        if not any(old.name.startswith(c["slug"] + "-") for c in contrib):
+            old.unlink()
+    write_readme(contrib)
     print(json.dumps({k: v for k, v in s.items() if k not in ("days", "langs", "latest")}))
 
 

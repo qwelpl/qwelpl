@@ -15,6 +15,14 @@
 
 <br>
 
+### contributed to
+
+<a href="https://github.com/talkvalue/Buddi/pulls?q=is%3Apr+author%3Aqwelpl"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/contrib-talkvalue-buddi-dark.svg"><img alt="talkvalue / Buddi" src="assets/contrib-talkvalue-buddi-light.svg" width="49%"></picture></a>&nbsp;<a href="https://github.com/Ashwagandhae/debate-flow/pulls?q=is%3Apr+author%3Aqwelpl"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/contrib-ashwagandhae-debate-flow-dark.svg"><img alt="Ashwagandhae / debate-flow" src="assets/contrib-ashwagandhae-debate-flow-light.svg" width="49%"></picture></a>
+
+<a href="https://github.com/codeCrafter10-alt/smart-task-manager/issues?q=is%3Aissue+author%3Aqwelpl"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/contrib-codecrafter10-alt-smart-task-manager-dark.svg"><img alt="codeCrafter10-alt / smart-task-manager" src="assets/contrib-codecrafter10-alt-smart-task-manager-light.svg" width="49%"></picture></a>
+
+<br>
+
 ### activity
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg"><img alt="activity" src="assets/stats-light.svg" width="100%"></picture>
