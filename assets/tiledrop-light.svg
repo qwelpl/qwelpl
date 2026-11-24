@@ -16,6 +16,8 @@
 @keyframes fade-out{to{opacity:0}}
 .tag{fill:none;stroke:#d0d7de}
 .arrow{stroke:#656d76;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.ico{stroke:#656d76;stroke-width:1.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.dotfill{fill:#656d76}
 
 </style>
 <rect class="card" x=".5" y=".5" width="409" height="131" rx="12"/>
@@ -25,4 +27,5 @@
 <text x="24" y="62" class="mute r" font-size="13" style="animation-delay:0.40s">the thing powering my website.</text>
 <text x="24" y="80" class="mute r" font-size="13" style="animation-delay:0.48s"></text>
 <g class="f" style="animation-delay:0.70s"><rect class="tag" x="24" y="96" width="90" height="20" rx="10"/><text x="33" y="110" class="faint" font-size="11">typescript</text></g><g class="f" style="animation-delay:0.70s"><rect class="tag" x="122.0" y="96" width="40" height="20" rx="10"/><text x="131.0" y="110" class="faint" font-size="11">web</text></g>
+
 </svg>

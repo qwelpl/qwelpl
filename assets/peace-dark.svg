@@ -16,6 +16,8 @@
 @keyframes fade-out{to{opacity:0}}
 .tag{fill:none;stroke:#262c36}
 .arrow{stroke:#8b949e;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.ico{stroke:#8b949e;stroke-width:1.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.dotfill{fill:#8b949e}
 
 </style>
 <rect class="card" x=".5" y=".5" width="409" height="131" rx="12"/>
@@ -25,4 +27,5 @@
 <text x="24" y="62" class="mute r" font-size="13" style="animation-delay:0.55s">a calmer front end for apple music with</text>
 <text x="24" y="80" class="mute r" font-size="13" style="animation-delay:0.63s">album art visualizers and synced lyrics.</text>
 <g class="f" style="animation-delay:0.85s"><rect class="tag" x="24" y="96" width="54" height="20" rx="10"/><text x="33" y="110" class="faint" font-size="11">swift</text></g><g class="f" style="animation-delay:0.85s"><rect class="tag" x="86.0" y="96" width="54" height="20" rx="10"/><text x="95.0" y="110" class="faint" font-size="11">macOS</text></g>
+
 </svg>

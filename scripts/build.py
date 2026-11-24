@@ -39,6 +39,13 @@ LINKS = [
     ("email", "say hi", "mail"),
 ]
 
+ICONS = {
+    "star": '<path d="M0.00 -6.20 L1.59 -2.18 L5.90 -1.92 L2.57 0.83 L3.64 5.02 L0.00 2.70 L-3.64 5.02 L-2.57 0.83 L-5.90 -1.92 L-1.59 -2.18Z"/>',
+    "pr": '<circle cx="-3.5" cy="-4.5" r="1.7"/><circle cx="-3.5" cy="4.5" r="1.7"/><path d="M-3.5 -2.8v5.6"/>'
+    '<circle cx="3.5" cy="4.5" r="1.7"/><path d="M3.5 2.8V-1.5a2 2 0 0 0-2-2H-.5M1 -5.5l-2 2 2 2"/>',
+    "issue": '<circle r="5.8"/><circle class="dotfill" r="1.3" stroke="none"/>',
+}
+
 LOOP = 14
 LOOP_START = 4
 
@@ -318,8 +325,21 @@ def card(t, p, i):
 @keyframes fade-out{{to{{opacity:0}}}}
 .tag{{fill:none;stroke:{t['border']}}}
 .arrow{{stroke:{t['mute']};stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round}}
+.ico{{stroke:{t['mute']};stroke-width:1.4;fill:none;stroke-linecap:round;stroke-linejoin:round}}
+.dotfill{{fill:{t['mute']}}}
 """
     d = 0.15 * i
+    meta = []
+    mx = w - 24
+    for j, (kind, n) in enumerate(reversed(p.get("meta", []))):
+        label = str(n)
+        mx -= len(label) * 7.2
+        meta.append(
+            f'<g class="f" style="animation-delay:{d + 0.8 + j * 0.08:.2f}s">'
+            f'<g class="ico" transform="translate({mx - 12:.1f},106)">{ICONS[kind]}</g>'
+            f'<text x="{mx:.1f}" y="110.5" class="mute mono" font-size="12">{label}</text></g>'
+        )
+        mx -= 34
     tags = []
     tx = 24
     for tag in p["tags"]:
@@ -338,6 +358,7 @@ def card(t, p, i):
 <text x="24" y="62" class="mute r" font-size="13" style="animation-delay:{d + 0.4:.2f}s">{escape(p['desc'][0])}</text>
 <text x="24" y="80" class="mute r" font-size="13" style="animation-delay:{d + 0.48:.2f}s">{escape(p['desc'][1])}</text>
 {''.join(tags)}
+{''.join(meta)}
 </svg>"""
 
 
@@ -491,17 +512,17 @@ def contributed():
         tags = []
         if r["primaryLanguage"]:
             tags.append(r["primaryLanguage"]["name"].lower())
-        if r["stargazerCount"]:
-            tags.append(f"{r['stargazerCount']} stars")
+        meta = [("star", r["stargazerCount"])]
         if merged:
-            tags.append(f"{merged} merged pr" + ("s" if merged > 1 else ""))
+            meta.append(("pr", merged))
         if issues:
-            tags.append(f"{issues} issue" + ("s" if issues > 1 else ""))
+            meta.append(("issue", issues))
         out.append({
             "slug": "contrib-" + r["nameWithOwner"].replace("/", "-").lower(),
             "name": f"{r['owner']['login']} / {r['name']}",
             "desc": wrap(r["description"] or "", 46),
             "tags": tags,
+            "meta": meta,
             "url": f"{r['url']}/pulls?q=is%3Apr+author%3A{LOGIN}" if prs else f"{r['url']}/issues?q=is%3Aissue+author%3A{LOGIN}",
             "stars": r["stargazerCount"],
         })
