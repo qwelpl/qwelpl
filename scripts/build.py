@@ -37,6 +37,7 @@ MONO = "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace"
 LINKS = [
     ("site", "tile-drop.com/q_welpl", "web"),
     ("email", "say hi", "mail"),
+    ("instagram", "say hi (p2)", "ig"),
 ]
 
 ICONS = {
@@ -301,6 +302,7 @@ def pill(t, label, icon, i):
     icons = {
         "web": '<circle cx="0" cy="0" r="6"/><path d="M-6 0h12M0-6c2.5 3 2.5 9 0 12M0-6c-2.5 3-2.5 9 0 12"/>',
         "mail": '<rect x="-6.5" y="-4.5" width="13" height="9" rx="1.5"/><path d="M-6 -3.5l6 4.5 6-4.5"/>',
+        "ig": '<rect x="-6.5" y="-6.5" width="13" height="13" rx="3.8"/><circle r="3"/><circle cx="3.6" cy="-3.6" r=".35"/>',
         "gh": '<path d="M-5 -1l-3 3 3 3M5 -1l3 3-3 3M2 -6l-4 13"/>',
     }
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
