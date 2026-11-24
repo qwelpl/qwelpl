@@ -268,10 +268,12 @@ def header(t, s):
 """
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
 {style(t, extra)}
+<g transform="translate(10,0)">
 <text x="2" y="48" class="mute r" font-size="18">hey there, i'm</text>
 <text x="0" y="118" class="fg r" font-size="72" font-weight="700" style="animation-delay:.12s">aarav</text>
 <text x="2" y="160" class="mute f" font-size="22" style="animation-delay:.9s">i build</text>
 {''.join(cyc)}
+</g>
 <g class="f" style="animation-delay:.4s">
 <rect class="card" x="{px + .5}" y="{py + .5}" width="{pw - 1}" height="{ph - 1}" rx="12"/>
 <circle class="live" cx="{px + 26}" cy="{py + 25}" r="3.5"/>
