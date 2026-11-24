@@ -495,8 +495,6 @@ def contributed():
             tags.append(f"{r['stargazerCount']} stars")
         if merged:
             tags.append(f"{merged} merged pr" + ("s" if merged > 1 else ""))
-        elif prs:
-            tags.append(f"{prs} pr" + ("s" if prs > 1 else ""))
         if issues:
             tags.append(f"{issues} issue" + ("s" if issues > 1 else ""))
         out.append({
