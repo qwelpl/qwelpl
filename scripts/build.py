@@ -284,7 +284,7 @@ def stats(t, s):
 .sep{{stroke:{t['border']};stroke-width:1}}
 """
     items = [
-        (f"{s['contributions']:,}", "contributions this year"),
+        (f"{s['contributions']:,}", "contributions in the last year"),
         (f"{s['repos']}", "public repos"),
         (f"{s['stars']}", "stars"),
         (f"{s['followers']}", "followers"),
