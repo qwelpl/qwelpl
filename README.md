@@ -28,6 +28,8 @@
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg"><img alt="activity" src="assets/stats-light.svg" width="100%"></picture>
 
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/ghstats-dark.svg"><img alt="github stats" src="assets/ghstats-light.svg" width="100%"></picture>
+
 <picture><source media="(prefers-color-scheme: dark)" srcset="assets/langs-dark.svg"><img alt="languages" src="assets/langs-light.svg" width="100%"></picture>
 
 <br>

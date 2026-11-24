@@ -44,6 +44,9 @@ ICONS = {
     "star": '<path d="M0.00 -6.20 L1.59 -2.18 L5.90 -1.92 L2.57 0.83 L3.64 5.02 L0.00 2.70 L-3.64 5.02 L-2.57 0.83 L-5.90 -1.92 L-1.59 -2.18Z"/>',
     "pr": '<circle cx="-3.5" cy="-4.5" r="1.7"/><circle cx="-3.5" cy="4.5" r="1.7"/><path d="M-3.5 -2.8v5.6"/>'
     '<circle cx="3.5" cy="4.5" r="1.7"/><path d="M3.5 2.8V-1.5a2 2 0 0 0-2-2H-.5M1 -5.5l-2 2 2 2"/>',
+    "commit": '<circle r="2.6"/><path d="M-7 0h4.4M2.6 0H7"/>',
+    "review": '<path d="M-7 0c1.8-3.4 4.2-5 7-5s5.2 1.6 7 5c-1.8 3.4-4.2 5-7 5s-5.2-1.6-7-5z"/><circle r="2"/>',
+    "repo": '<path d="M-5.5 5.5v-10a1.5 1.5 0 0 1 1.5-1.5h9.5v10H-4a1.5 1.5 0 0 0-1.5 1.5zm0 0a1.5 1.5 0 0 0 1.5 1.5h9.5v-3"/>',
     "issue": '<circle r="5.8"/><circle class="dotfill" r="1.3" stroke="none"/>',
 }
 
@@ -145,7 +148,10 @@ def fetch():
     u = gql(
         """query($l:String!){user(login:$l){
         followers{totalCount}
-        contributionsCollection{contributionCalendar{totalContributions weeks{contributionDays{date contributionCount}}}}
+        contributionsCollection{totalCommitContributions restrictedContributionsCount totalPullRequestContributions
+        totalIssueContributions totalPullRequestReviewContributions
+        contributionCalendar{totalContributions weeks{contributionDays{date contributionCount}}}}
+        repositoriesContributedTo(first:1,contributionTypes:[COMMIT,PULL_REQUEST,ISSUE,PULL_REQUEST_REVIEW]){totalCount}
         repositories(first:100,privacy:PUBLIC,ownerAffiliations:OWNER,orderBy:{field:PUSHED_AT,direction:DESC}){
         totalCount nodes{name pushedAt isFork stargazerCount homepageUrl
         pkg:object(expression:"HEAD:package.json"){...on Blob{text}}
@@ -199,6 +205,13 @@ def fetch():
 
     return {
         "contributions": cal["totalContributions"],
+        "gh": {
+            "commits": u["contributionsCollection"]["totalCommitContributions"] + u["contributionsCollection"]["restrictedContributionsCount"],
+            "prs": u["contributionsCollection"]["totalPullRequestContributions"],
+            "issues": u["contributionsCollection"]["totalIssueContributions"],
+            "reviews": u["contributionsCollection"]["totalPullRequestReviewContributions"],
+            "contributed": u["repositoriesContributedTo"]["totalCount"],
+        },
         "repos": u["repositories"]["totalCount"],
         "stars": stars,
         "followers": u["followers"]["totalCount"],
@@ -439,6 +452,69 @@ def stats(t, s):
 </svg>"""
 
 
+def ghstats(t, s):
+    w, h = 840, 220
+    g = s["gh"]
+    rows = [
+        ("commit", "commits", g["commits"]),
+        ("pr", "pull requests", g["prs"]),
+        ("issue", "issues", g["issues"]),
+        ("review", "code reviews", g["reviews"]),
+        ("repo", "contributed to", g["contributed"]),
+    ]
+    extra = f"""
+@keyframes again{{0%{{opacity:1;transform:translateY(0)}}2%{{opacity:0;transform:translateY(8px)}}6%{{opacity:1;transform:translateY(0)}}100%{{opacity:1;transform:translateY(0)}}}}
+.ico{{stroke:{t['mute']};stroke-width:1.4;fill:none;stroke-linecap:round;stroke-linejoin:round}}
+.dotfill{{fill:{t['mute']}}}
+.sep{{stroke:{t['border']};stroke-width:1}}
+.bar{{transform-box:fill-box;transform-origin:bottom;transform:scaleY(0)}}
+@keyframes up{{to{{transform:scaleY(1)}}}}
+@keyframes reup{{0%{{transform:scaleY(1)}}3%{{transform:scaleY(0)}}9%{{transform:scaleY(1)}}100%{{transform:scaleY(1)}}}}
+"""
+    items = []
+    for i, (icon, label, n) in enumerate(rows):
+        y = 70 + i * 30
+        a = loop("rise .8s cubic-bezier(.2,.7,.2,1)", 0.2 + i * 0.08)
+        items.append(
+            f'<g class="r" style="{a}">'
+            f'<g class="ico" transform="translate(32,{y - 4})">{ICONS[icon]}</g>'
+            f'<text x="52" y="{y}" class="mute" font-size="13">{label}</text>'
+            f'<text x="380" y="{y}" class="fg mono" font-size="13" font-weight="600" text-anchor="end">{n:,}</text></g>'
+        )
+    months = {}
+    for d, n in s["days"]:
+        months[d[:7]] = months.get(d[:7], 0) + n
+    months = sorted(months.items())[-12:]
+    peak = max([n for _, n in months] + [1])
+    cx0, cx1, base, top = 440, 816, 176, 60
+    bw = (cx1 - cx0) / len(months)
+    bars = []
+    for i, (m, n) in enumerate(months):
+        bh = max(2, (base - top) * n / peak)
+        x = cx0 + i * bw + 5
+        shade = t["cells"][4] if n == peak else t["cells"][3]
+        bars.append(
+            f'<rect class="bar" x="{x:.1f}" y="{base - bh:.1f}" width="{bw - 10:.1f}" height="{bh:.1f}" rx="3" fill="{shade}" '
+            f'style="{loop("up .9s cubic-bezier(.6,0,.2,1)", 0.3 + i * 0.06, "reup")}"/>'
+            f'<text x="{x + (bw - 10) / 2:.1f}" y="{base + 18}" class="faint f" font-size="10" text-anchor="middle" style="animation-delay:1s">'
+            f'{datetime.strptime(m, "%Y-%m").strftime("%b").lower()[0]}</text>'
+        )
+        if n == peak:
+            bars.append(
+                f'<text x="{x + (bw - 10) / 2:.1f}" y="{base - bh - 8:.1f}" class="fg mono f" font-size="11" text-anchor="middle" style="animation-delay:1.2s">{n}</text>'
+            )
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
+{style(t, extra)}
+<rect class="card" x=".5" y=".5" width="{w - 1}" height="{h - 1}" rx="12"/>
+<text x="24" y="34" class="fg r" font-size="14" font-weight="600">github stats</text>
+<text x="380" y="34" class="faint r" font-size="11" text-anchor="end">past year</text>
+<text x="440" y="34" class="fg r" font-size="14" font-weight="600">contributions by month</text>
+<line class="sep f" x1="410" y1="24" x2="410" y2="{h - 24}" style="animation-delay:.3s"/>
+{''.join(items)}
+{''.join(bars)}
+</svg>"""
+
+
 def languages(t, s):
     w, h = 840, 96
     top = s["langs"][:5]
@@ -568,6 +644,7 @@ def main():
     for name, t in THEMES.items():
         (OUT / f"header-{name}.svg").write_text(header(t, s))
         (OUT / f"stats-{name}.svg").write_text(stats(t, s))
+        (OUT / f"ghstats-{name}.svg").write_text(ghstats(t, s))
         (OUT / f"langs-{name}.svg").write_text(languages(t, s))
         for i, (slug, label, icon) in enumerate(LINKS):
             (OUT / f"link-{slug}-{name}.svg").write_text(pill(t, label, icon, i))
