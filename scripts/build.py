@@ -39,6 +39,9 @@ LINKS = [
     ("email", "say hi", "mail"),
 ]
 
+LOOP = 14
+LOOP_START = 4
+
 LANG_ICONS = {
     "Swift": "swift",
     "Python": "py",
@@ -333,11 +336,20 @@ def card(t, p, i):
 </svg>"""
 
 
+def loop(first, delay, again="again"):
+    return (
+        f"animation:{first} {delay:.2f}s forwards,"
+        f"{again} {LOOP}s cubic-bezier(.4,0,.2,1) {LOOP_START + delay:.2f}s infinite"
+    )
+
+
 def stats(t, s):
     w, h = 840, 250
     extra = f"""
-.cell{{opacity:0;animation:pop .5s cubic-bezier(.2,.7,.2,1) forwards;transform-box:fill-box;transform-origin:center}}
+.cell{{opacity:0;transform-box:fill-box;transform-origin:center}}
 @keyframes pop{{from{{opacity:0;transform:scale(.3)}}to{{opacity:1;transform:scale(1)}}}}
+@keyframes wave{{0%{{opacity:1;transform:scale(1)}}2.5%{{opacity:.1;transform:scale(.35)}}6%{{opacity:1;transform:scale(1)}}100%{{opacity:1;transform:scale(1)}}}}
+@keyframes again{{0%{{opacity:1;transform:translateY(0)}}2%{{opacity:0;transform:translateY(8px)}}6%{{opacity:1;transform:translateY(0)}}100%{{opacity:1;transform:translateY(0)}}}}
 .sep{{stroke:{t['border']};stroke-width:1}}
 """
     items = [
@@ -352,8 +364,8 @@ def stats(t, s):
     for i, (v, label) in enumerate(items):
         x = 24 + i * cw
         cols.append(
-            f'<text x="{x:.0f}" y="62" class="fg mono r" font-size="28" font-weight="600" style="animation-delay:{0.1 + i * 0.1:.2f}s">{v}</text>'
-            f'<text x="{x:.0f}" y="84" class="mute r" font-size="12" style="animation-delay:{0.15 + i * 0.1:.2f}s">{label}</text>'
+            f'<text x="{x:.0f}" y="62" class="fg mono r" font-size="28" font-weight="600" style="{loop("rise .8s cubic-bezier(.2,.7,.2,1)", 0.1 + i * 0.1)}">{v}</text>'
+            f'<text x="{x:.0f}" y="84" class="mute r" font-size="12" style="{loop("rise .8s cubic-bezier(.2,.7,.2,1)", 0.15 + i * 0.1)}">{label}</text>'
         )
     weeks = 53
     recent = s["days"][-(weeks * 7):]
@@ -376,7 +388,7 @@ def stats(t, s):
         y = 118 + row * (size + gap)
         delay = 0.5 + col * 0.025 + row * 0.02
         cells.append(
-            f'<rect class="cell" x="{x:.1f}" y="{y}" width="{size}" height="{size}" rx="2.5" fill="{t["cells"][lvl]}" style="animation-delay:{delay:.2f}s"/>'
+            f'<rect class="cell" x="{x:.1f}" y="{y}" width="{size}" height="{size}" rx="2.5" fill="{t["cells"][lvl]}" style="{loop("pop .5s cubic-bezier(.2,.7,.2,1)", delay, "wave")}"/>'
         )
     legend_x = w - 24 - 5 * 14 - 70
     legend = [f'<text x="{legend_x}" y="232" class="faint f" font-size="10" style="animation-delay:2s">less</text>']
@@ -407,8 +419,9 @@ def languages(t, s):
         top.append(("other", rest))
     total = sum(v for _, v in top) or 1
     extra = """
-.seg{transform-box:fill-box;transform-origin:left;transform:scaleX(0);animation:grow 1s cubic-bezier(.6,0,.2,1) forwards}
+.seg{transform-box:fill-box;transform-origin:left;transform:scaleX(0)}
 @keyframes grow{to{transform:scaleX(1)}}
+@keyframes regrow{0%{transform:scaleX(1)}3%{transform:scaleX(0)}9%{transform:scaleX(1)}100%{transform:scaleX(1)}}
 """
     bx, bw = 24, w - 48
     segs = []
@@ -418,7 +431,7 @@ def languages(t, s):
     for i, (name, v) in enumerate(top):
         sw = bw * v / total
         segs.append(
-            f'<rect class="seg" x="{x:.2f}" y="28" width="{max(sw - 2, 1):.2f}" height="8" rx="2" fill="{t["bars"][i]}" style="animation-delay:{0.1 + i * 0.12:.2f}s"/>'
+            f'<rect class="seg" x="{x:.2f}" y="28" width="{max(sw - 2, 1):.2f}" height="8" rx="2" fill="{t["bars"][i]}" style="{loop("grow 1s cubic-bezier(.6,0,.2,1)", 0.1 + i * 0.12, "regrow")}"/>'
         )
         x += sw
         label = f"{name.lower()}  {100 * v / total:.1f}%"
