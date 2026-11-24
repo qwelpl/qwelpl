@@ -1,18 +1,11 @@
 import json
 import os
 import urllib.request
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from html import escape
 from pathlib import Path
 
 LOGIN = "qwelpl"
-EMAILS = {
-    "aaravgulrajani19@gmail.com",
-    "qwelpl@users.noreply.github.com",
-    "aarav@mac-mini.local",
-    "aarav@aaravs-macbook-air.local",
-    "aarav@ashleys_laptop.fusdk12.net",
-}
 OUT = Path(__file__).resolve().parent.parent / "assets"
 
 THEMES = {
@@ -100,75 +93,27 @@ def gql(query, variables=None):
     return body["data"]
 
 
-def count_commits():
-    repos = gql(
-        """query{viewer{repositories(first:100,ownerAffiliations:OWNER){nodes{name refs(refPrefix:"refs/heads/",first:100){nodes{name}}}}}}"""
-    )["viewer"]["repositories"]["nodes"]
-    mine = set()
-    for r in repos:
-        seen = set()
-        for b in r["refs"]["nodes"]:
-            cursor = None
-            while True:
-                h = gql(
-                    """query($o:String!,$n:String!,$b:String!,$c:String){repository(owner:$o,name:$n){ref(qualifiedName:$b){target{...on Commit{
-                    history(first:100,after:$c){pageInfo{hasNextPage endCursor} nodes{oid author{email user{login}}}}}}}}}""",
-                    {"o": LOGIN, "n": r["name"], "b": "refs/heads/" + b["name"], "c": cursor},
-                )["repository"]["ref"]["target"]["history"]
-                fresh = [c for c in h["nodes"] if c["oid"] not in seen]
-                for c in fresh:
-                    seen.add(c["oid"])
-                    user = (c["author"]["user"] or {}).get("login")
-                    if user == LOGIN or (c["author"]["email"] or "").lower() in EMAILS:
-                        mine.add(c["oid"])
-                if not fresh or not h["pageInfo"]["hasNextPage"]:
-                    break
-                cursor = h["pageInfo"]["endCursor"]
-    return len(mine)
-
-
 def fetch():
-    years = gql(
-        "query($l:String!){user(login:$l){contributionsCollection{contributionYears}}}",
+    u = gql(
+        """query($l:String!){user(login:$l){
+        followers{totalCount}
+        contributionsCollection{contributionCalendar{totalContributions weeks{contributionDays{date contributionCount}}}}
+        repositories(first:100,privacy:PUBLIC,ownerAffiliations:OWNER,orderBy:{field:PUSHED_AT,direction:DESC}){
+        totalCount nodes{name pushedAt isFork stargazerCount languages(first:10,orderBy:{field:SIZE,direction:DESC}){edges{size node{name}}}}}}}""",
         {"l": LOGIN},
-    )["user"]["contributionsCollection"]["contributionYears"]
+    )["user"]
 
-    commits = contributions = prs = 0
-    days = []
-    for y in sorted(years):
-        c = gql(
-            """query($l:String!,$f:DateTime!,$t:DateTime!){user(login:$l){contributionsCollection(from:$f,to:$t){
-            totalCommitContributions restrictedContributionsCount totalPullRequestContributions
-            commitContributionsByRepository(maxRepositories:100){repository{owner{login}} contributions{totalCount}}
-            contributionCalendar{totalContributions weeks{contributionDays{date contributionCount}}}}}}""",
-            {"l": LOGIN, "f": f"{y}-01-01T00:00:00Z", "t": f"{y}-12-31T23:59:59Z"},
-        )["user"]["contributionsCollection"]
-        commits += sum(
-            x["contributions"]["totalCount"]
-            for x in c["commitContributionsByRepository"]
-            if x["repository"]["owner"]["login"] != LOGIN
-        )
-        prs += c["totalPullRequestContributions"]
-        contributions += c["contributionCalendar"]["totalContributions"]
-        for w in c["contributionCalendar"]["weeks"]:
-            days.extend(w["contributionDays"])
-
-    repos = gql(
-        """query($l:String!){user(login:$l){repositories(ownerAffiliations:OWNER,isFork:false,first:100){
-        totalCount nodes{stargazerCount languages(first:10,orderBy:{field:SIZE,direction:DESC}){edges{size node{name}}}}}}}""",
-        {"l": LOGIN},
-    )["user"]["repositories"]
+    cal = u["contributionsCollection"]["contributionCalendar"]
+    days = [(d["date"], d["contributionCount"]) for w in cal["weeks"] for d in w["contributionDays"]]
 
     langs = {}
     stars = 0
-    for r in repos["nodes"]:
+    for r in u["repositories"]["nodes"]:
         stars += r["stargazerCount"]
+        if r["isFork"]:
+            continue
         for e in r["languages"]["edges"]:
             langs[e["node"]["name"]] = langs.get(e["node"]["name"], 0) + e["size"]
-
-    days = sorted({d["date"]: d["contributionCount"] for d in days}.items())
-    today = date.today().isoformat()
-    days = [(d, n) for d, n in days if d <= today]
 
     longest = run = 0
     for _, n in days:
@@ -183,21 +128,16 @@ def fetch():
         else:
             break
 
-    latest = gql(
-        """query($l:String!){user(login:$l){repositories(first:5,privacy:PUBLIC,ownerAffiliations:OWNER,orderBy:{field:PUSHED_AT,direction:DESC}){nodes{name pushedAt}}}}""",
-        {"l": LOGIN},
-    )["user"]["repositories"]["nodes"]
-    latest = next(r for r in latest if r["name"] != LOGIN)
+    latest = next(r for r in u["repositories"]["nodes"] if r["name"] != LOGIN and not r["isFork"])
 
     return {
-        "commits": commits + count_commits(),
-        "latest": latest,
-        "contributions": contributions,
-        "prs": prs,
-        "repos": repos["totalCount"],
+        "contributions": cal["totalContributions"],
+        "repos": u["repositories"]["totalCount"],
         "stars": stars,
+        "followers": u["followers"]["totalCount"],
         "current": current,
         "longest": longest,
+        "latest": latest,
         "days": days,
         "langs": sorted(langs.items(), key=lambda kv: -kv[1]),
     }
@@ -244,7 +184,7 @@ def header(t, s):
     rows = [
         ("latest", s["latest"]["name"]),
         ("pushed", ago(s["latest"]["pushedAt"])),
-        ("commits", f"{s['commits']:,}"),
+        ("streak", f"{s['current']} days"),
         ("top lang", top),
         ("based in", "united states"),
     ]
@@ -344,10 +284,10 @@ def stats(t, s):
 .sep{{stroke:{t['border']};stroke-width:1}}
 """
     items = [
-        (f"{s['commits']:,}", "commits"),
-        (f"{s['contributions']:,}", "contributions"),
-        (f"{s['repos']}", "repositories"),
-        (f"{s['current']}d", "current streak"),
+        (f"{s['contributions']:,}", "contributions this year"),
+        (f"{s['repos']}", "public repos"),
+        (f"{s['stars']}", "stars"),
+        (f"{s['followers']}", "followers"),
         (f"{s['longest']}d", "longest streak"),
     ]
     cols = []
