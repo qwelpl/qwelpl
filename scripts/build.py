@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import urllib.request
 from datetime import datetime, timezone
 from html import escape
@@ -48,6 +49,7 @@ ICONS = {
     "review": '<path d="M-7 0c1.8-3.4 4.2-5 7-5s5.2 1.6 7 5c-1.8 3.4-4.2 5-7 5s-5.2-1.6-7-5z"/><circle r="2"/>',
     "repo": '<path d="M-5.5 5.5v-10a1.5 1.5 0 0 1 1.5-1.5h9.5v10H-4a1.5 1.5 0 0 0-1.5 1.5zm0 0a1.5 1.5 0 0 0 1.5 1.5h9.5v-3"/>',
     "issue": '<circle r="5.8"/><circle class="dotfill" r="1.3" stroke="none"/>',
+    "user": '<circle cy="-2.6" r="2.8"/><path d="M-5.6 6c.6-3 2.8-4.6 5.6-4.6s5 1.6 5.6 4.6"/>',
 }
 
 HUES = [215, 155, 35, 280, 190, 12]
@@ -95,6 +97,12 @@ DEP_ICONS = {
 
 PROJECTS = [
     {
+        "slug": "tiledrop",
+        "name": "tiledrop",
+        "desc": ["the thing powering my website.", ""],
+        "tags": ["typescript", "web"],
+    },
+    {
         "slug": "barloom",
         "name": "barloom",
         "desc": ["a windows 11 style taskbar for macOS", "that replaces the dock."],
@@ -117,12 +125,6 @@ PROJECTS = [
         "name": "wildfire",
         "desc": ["a daily word puzzle. burn the whole 5x5", "board in as few words as you can."],
         "tags": ["javascript", "game"],
-    },
-    {
-        "slug": "tiledrop",
-        "name": "tiledrop",
-        "desc": ["the thing powering my website.", ""],
-        "tags": ["typescript", "web"],
     },
     {
         "slug": "mirror-repo",
@@ -743,8 +745,22 @@ def tint(svg):
     return f'{head}</style>\n<g class="a3">{body}</g>\n</svg>{tail}'
 
 
+def tiledrop_users():
+    try:
+        req = urllib.request.Request("https://tile-drop.com", headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=20) as r:
+            html = r.read().decode()
+        return int(re.search(r'target\\*":(\d+)', html).group(1))
+    except Exception:
+        return None
+
+
 def main():
     OUT.mkdir(exist_ok=True)
+    users = tiledrop_users()
+    for p in PROJECTS:
+        if p["slug"] == "tiledrop" and users is not None:
+            p["meta"] = [("user", f"{users:,} users")]
     s = fetch()
     contrib = contributed()
     icons = stack_icons(s)

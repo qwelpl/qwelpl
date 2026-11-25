@@ -30,7 +30,7 @@
 .r{opacity:0;animation:rise .8s cubic-bezier(.2,.7,.2,1) forwards}
 .f{opacity:0;animation:fade 1s ease forwards}
 
-.edge{fill:none;stroke:#1f2328;stroke-width:1.2;stroke-dasharray:1100;stroke-dashoffset:1100;opacity:.55;animation:draw 1.8s cubic-bezier(.6,0,.2,1) 0.00s forwards, fade-out 1.2s ease 1.90s forwards, e4 72s ease-in-out infinite}
+.edge{fill:none;stroke:#1f2328;stroke-width:1.2;stroke-dasharray:1100;stroke-dashoffset:1100;opacity:.55;animation:draw 1.8s cubic-bezier(.6,0,.2,1) 0.15s forwards, fade-out 1.2s ease 2.05s forwards, e4 72s ease-in-out infinite}
 @keyframes fade-out{to{opacity:0}}
 .tag{fill:none;stroke:#d0d7de}
 .arrow{stroke:#656d76;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
@@ -41,11 +41,11 @@
 <g class="a3">
 <rect class="card" x=".5" y=".5" width="409" height="131" rx="12"/>
 <rect class="edge" x=".5" y=".5" width="409" height="131" rx="12"/>
-<text x="24" y="38" class="fg r" font-size="17" font-weight="600" style="animation-delay:0.20s">barloom</text>
-<g class="r" style="animation-delay:0.30s"><path class="arrow" d="M376 26 l8 8 l-8 8 M368 34 h15"/></g>
-<text x="24" y="62" class="mute r" font-size="13" style="animation-delay:0.40s">a windows 11 style taskbar for macOS</text>
-<text x="24" y="80" class="mute r" font-size="13" style="animation-delay:0.48s">that replaces the dock.</text>
-<g class="f" style="animation-delay:0.70s"><rect class="tag" x="24" y="96" width="54" height="20" rx="10"/><text x="33" y="110" class="faint" font-size="11">swift</text></g><g class="f" style="animation-delay:0.70s"><rect class="tag" x="86.0" y="96" width="54" height="20" rx="10"/><text x="95.0" y="110" class="faint" font-size="11">macOS</text></g>
+<text x="24" y="38" class="fg r" font-size="17" font-weight="600" style="animation-delay:0.35s">barloom</text>
+<g class="r" style="animation-delay:0.45s"><path class="arrow" d="M376 26 l8 8 l-8 8 M368 34 h15"/></g>
+<text x="24" y="62" class="mute r" font-size="13" style="animation-delay:0.55s">a windows 11 style taskbar for macOS</text>
+<text x="24" y="80" class="mute r" font-size="13" style="animation-delay:0.63s">that replaces the dock.</text>
+<g class="f" style="animation-delay:0.85s"><rect class="tag" x="24" y="96" width="54" height="20" rx="10"/><text x="33" y="110" class="faint" font-size="11">swift</text></g><g class="f" style="animation-delay:0.85s"><rect class="tag" x="86.0" y="96" width="54" height="20" rx="10"/><text x="95.0" y="110" class="faint" font-size="11">macOS</text></g>
 
 </g>
 </svg>

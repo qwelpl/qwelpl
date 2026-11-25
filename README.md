@@ -8,11 +8,11 @@
 
 ### projects
 
-<a href="https://github.com/qwelpl/barloom"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/barloom-dark.svg"><img alt="barloom" src="assets/barloom-light.svg" width="49%"></picture></a>&nbsp;<a href="https://github.com/qwelpl/peacemusic"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/peace-dark.svg"><img alt="peace" src="assets/peace-light.svg" width="49%"></picture></a>
+<a href="https://tiledrop.vercel.app"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/tiledrop-dark.svg"><img alt="tiledrop" src="assets/tiledrop-light.svg" width="49%"></picture></a>&nbsp;<a href="https://github.com/qwelpl/barloom"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/barloom-dark.svg"><img alt="barloom" src="assets/barloom-light.svg" width="49%"></picture></a>
 
-<a href="https://stem-nb.vercel.app"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/quovine-dark.svg"><img alt="quovine" src="assets/quovine-light.svg" width="49%"></picture></a>&nbsp;<a href="https://github.com/qwelpl/wildfire"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/wildfire-dark.svg"><img alt="wildfire" src="assets/wildfire-light.svg" width="49%"></picture></a>
+<a href="https://github.com/qwelpl/peacemusic"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/peace-dark.svg"><img alt="peace" src="assets/peace-light.svg" width="49%"></picture></a>&nbsp;<a href="https://stem-nb.vercel.app"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/quovine-dark.svg"><img alt="quovine" src="assets/quovine-light.svg" width="49%"></picture></a>
 
-<a href="https://tiledrop.vercel.app"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/tiledrop-dark.svg"><img alt="tiledrop" src="assets/tiledrop-light.svg" width="49%"></picture></a>&nbsp;<a href="https://github.com/qwelpl/mirror-repo"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/mirror-repo-dark.svg"><img alt="mirror-repo" src="assets/mirror-repo-light.svg" width="49%"></picture></a>
+<a href="https://github.com/qwelpl/wildfire"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/wildfire-dark.svg"><img alt="wildfire" src="assets/wildfire-light.svg" width="49%"></picture></a>&nbsp;<a href="https://github.com/qwelpl/mirror-repo"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/mirror-repo-dark.svg"><img alt="mirror-repo" src="assets/mirror-repo-light.svg" width="49%"></picture></a>
 
 <br>
 
