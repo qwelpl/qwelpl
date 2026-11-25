@@ -201,6 +201,12 @@ def fetch():
         for f in found:
             frameworks[f] = frameworks.get(f, 0) + 1
 
+    counts = gql(
+        """query($p:String!,$i:String!){prs:search(query:$p,type:ISSUE,first:0){issueCount}
+        issues:search(query:$i,type:ISSUE,first:0){issueCount}}""",
+        {"p": f"author:{LOGIN} type:pr", "i": f"author:{LOGIN} type:issue"},
+    )
+
     latest = next(r for r in u["repositories"]["nodes"] if r["name"] != LOGIN and not r["isFork"])
 
     return {
@@ -211,6 +217,8 @@ def fetch():
             "issues": u["contributionsCollection"]["totalIssueContributions"],
             "reviews": u["contributionsCollection"]["totalPullRequestReviewContributions"],
             "contributed": u["repositoriesContributedTo"]["totalCount"],
+            "all_prs": counts["prs"]["issueCount"],
+            "all_issues": counts["issues"]["issueCount"],
         },
         "repos": u["repositories"]["totalCount"],
         "stars": stars,
@@ -452,9 +460,30 @@ def stats(t, s):
 </svg>"""
 
 
+def grade(s):
+    g = s["gh"]
+    exp = lambda x: 1 - 2 ** -x
+    logn = lambda x: x / (1 + x)
+    parts = [
+        (2, exp(g["commits"] / 250)),
+        (3, exp(g["all_prs"] / 50)),
+        (1, exp(g["all_issues"] / 25)),
+        (1, exp(g["reviews"] / 2)),
+        (4, logn(s["stars"] / 50)),
+        (1, logn(s["followers"] / 10)),
+    ]
+    pct = 100 * (1 - sum(w * v for w, v in parts) / sum(w for w, _ in parts))
+    levels = [(1, "S"), (12.5, "A+"), (25, "A"), (37.5, "A-"), (50, "B+"), (62.5, "B"), (75, "B-"), (87.5, "C+"), (100, "C")]
+    return next(l for t, l in levels if pct <= t), pct
+
+
 def ghstats(t, s):
     w, h = 840, 220
     g = s["gh"]
+    level, pct = grade(s)
+    rx, ry, rr = 372, 118, 46
+    import math
+    circ = 2 * math.pi * rr
     rows = [
         ("commit", "commits", g["commits"]),
         ("pr", "pull requests", g["prs"]),
@@ -470,6 +499,10 @@ def ghstats(t, s):
 .bar{{transform-box:fill-box;transform-origin:bottom;transform:scaleY(0)}}
 @keyframes up{{to{{transform:scaleY(1)}}}}
 @keyframes reup{{0%{{transform:scaleY(1)}}3%{{transform:scaleY(0)}}9%{{transform:scaleY(1)}}100%{{transform:scaleY(1)}}}}
+.track{{fill:none;stroke:{t['border']};stroke-width:6}}
+.arc{{fill:none;stroke:{t['fg']};stroke-width:6;stroke-linecap:round;stroke-dasharray:{circ:.1f};stroke-dashoffset:{circ:.1f}}}
+@keyframes fill{{to{{stroke-dashoffset:{circ - circ * (100 - pct) / 100:.1f}}}}}
+@keyframes refill{{0%{{stroke-dashoffset:{circ - circ * (100 - pct) / 100:.1f}}}3%{{stroke-dashoffset:{circ:.1f}}}12%{{stroke-dashoffset:{circ - circ * (100 - pct) / 100:.1f}}}100%{{stroke-dashoffset:{circ - circ * (100 - pct) / 100:.1f}}}}}
 """
     items = []
     for i, (icon, label, n) in enumerate(rows):
@@ -479,14 +512,14 @@ def ghstats(t, s):
             f'<g class="r" style="{a}">'
             f'<g class="ico" transform="translate(32,{y - 4})">{ICONS[icon]}</g>'
             f'<text x="52" y="{y}" class="mute" font-size="13">{label}</text>'
-            f'<text x="380" y="{y}" class="fg mono" font-size="13" font-weight="600" text-anchor="end">{n:,}</text></g>'
+            f'<text x="286" y="{y}" class="fg mono" font-size="13" font-weight="600" text-anchor="end">{n:,}</text></g>'
         )
     months = {}
     for d, n in s["days"]:
         months[d[:7]] = months.get(d[:7], 0) + n
     months = sorted(months.items())[-12:]
     peak = max([n for _, n in months] + [1])
-    cx0, cx1, base, top = 440, 816, 176, 60
+    cx0, cx1, base, top = 470, 816, 176, 60
     bw = (cx1 - cx0) / len(months)
     bars = []
     for i, (m, n) in enumerate(months):
@@ -507,9 +540,15 @@ def ghstats(t, s):
 {style(t, extra)}
 <rect class="card" x=".5" y=".5" width="{w - 1}" height="{h - 1}" rx="12"/>
 <text x="24" y="34" class="fg r" font-size="14" font-weight="600">github stats</text>
-<text x="380" y="34" class="faint r" font-size="11" text-anchor="end">past year</text>
-<text x="440" y="34" class="fg r" font-size="14" font-weight="600">contributions by month</text>
-<line class="sep f" x1="410" y1="24" x2="410" y2="{h - 24}" style="animation-delay:.3s"/>
+<text x="286" y="34" class="faint r" font-size="11" text-anchor="end">past year</text>
+<text x="476" y="34" class="fg r" font-size="14" font-weight="600">contributions by month</text>
+<line class="sep f" x1="306" y1="24" x2="306" y2="{h - 24}" style="animation-delay:.3s"/>
+<line class="sep f" x1="440" y1="24" x2="440" y2="{h - 24}" style="animation-delay:.3s"/>
+<text x="{rx}" y="34" class="fg r" font-size="14" font-weight="600" text-anchor="middle">rank</text>
+<circle class="track f" cx="{rx}" cy="{ry}" r="{rr}" style="animation-delay:.2s"/>
+<circle class="arc" cx="{rx}" cy="{ry}" r="{rr}" transform="rotate(-90 {rx} {ry})" style="animation:fill 1.4s cubic-bezier(.6,0,.2,1) .4s forwards,refill {LOOP}s cubic-bezier(.4,0,.2,1) {LOOP_START + .4}s infinite"/>
+<text x="{rx}" y="{ry + 10}" class="fg r" font-size="28" font-weight="700" text-anchor="middle" style="animation-delay:.9s">{level}</text>
+<text x="{rx}" y="{ry + rr + 30}" class="faint r" font-size="11" text-anchor="middle" style="animation-delay:1s">top {pct:.0f}%</text>
 {''.join(items)}
 {''.join(bars)}
 </svg>"""
