@@ -631,7 +631,18 @@ def languages(t, s):
 </svg>"""
 
 
-def stack(s, theme):
+ICON_NAMES = {
+    "swift": "Swift", "py": "Python", "ts": "TypeScript", "js": "JavaScript", "html": "HTML",
+    "css": "CSS", "cpp": "C++", "c": "C", "java": "Java", "bash": "Shell", "ruby": "Ruby",
+    "svelte": "Svelte", "go": "Go", "rust": "Rust", "kotlin": "Kotlin", "dart": "Dart",
+    "php": "PHP", "lua": "Lua", "nextjs": "Next.js", "react": "React", "vue": "Vue",
+    "supabase": "Supabase", "tailwind": "Tailwind CSS", "vite": "Vite", "express": "Express",
+    "threejs": "Three.js", "electron": "Electron", "firebase": "Firebase", "prisma": "Prisma",
+    "vercel": "Vercel",
+}
+
+
+def stack_icons(s):
     icons = []
     for name, _ in s["langs"]:
         i = LANG_ICONS.get(name)
@@ -640,7 +651,11 @@ def stack(s, theme):
     for f in s["frameworks"]:
         if f not in icons:
             icons.append(f)
-    url = f"https://skillicons.dev/icons?i={','.join(icons[:14])}&theme={theme}&perline=14"
+    return icons[:14]
+
+
+def skillicon(icon, theme):
+    url = f"https://skillicons.dev/icons?i={icon}&theme={theme}"
     req = urllib.request.Request(url, headers={"User-Agent": "profile-build"})
     with urllib.request.urlopen(req) as r:
         return r.read().decode()
@@ -704,7 +719,7 @@ def pic(slug, alt, width="49%"):
     )
 
 
-def write_readme(contrib):
+def write_readme(contrib, icons):
     readme = OUT.parent / "README.md"
     text = readme.read_text()
     start = text.index("### contributed to")
@@ -712,7 +727,17 @@ def write_readme(contrib):
     links = [f'<a href="{c["url"]}">{pic(c["slug"], c["name"])}</a>' for c in contrib]
     rows = ["&nbsp;".join(links[i:i + 2]) for i in range(0, len(links), 2)]
     block = "### contributed to\n\n" + "\n\n".join(rows) + "\n\n<br>\n\n"
-    readme.write_text(text[:start] + block + text[end:])
+    text = text[:start] + block + text[end:]
+    start = text.index("### stack")
+    tiles = []
+    for icon in icons:
+        name = ICON_NAMES.get(icon, icon)
+        tiles.append(
+            f'<picture><source media="(prefers-color-scheme: dark)" srcset="assets/stack/{icon}-dark.svg">'
+            f'<img alt="{name}" title="{name}" src="assets/stack/{icon}-light.svg" height="40"></picture>'
+        )
+    text = text[:start] + "### stack\n\n" + "&nbsp;\n".join(tiles) + "\n"
+    readme.write_text(text)
 
 
 def tint(svg):
@@ -725,6 +750,13 @@ def main():
     OUT.mkdir(exist_ok=True)
     s = fetch()
     contrib = contributed()
+    icons = stack_icons(s)
+    (OUT / "stack").mkdir(exist_ok=True)
+    for old in (OUT / "stack").glob("*.svg"):
+        if old.name.rsplit("-", 1)[0] not in icons:
+            old.unlink()
+    for old in OUT.glob("stack-*.svg"):
+        old.unlink()
     for name, t in THEMES.items():
         (OUT / f"header-{name}.svg").write_text(tint(header(t, s)))
         (OUT / f"stats-{name}.svg").write_text(tint(stats(t, s)))
@@ -734,13 +766,14 @@ def main():
             (OUT / f"link-{slug}-{name}.svg").write_text(tint(pill(t, label, icon, i)))
         for i, p in enumerate(PROJECTS):
             (OUT / f"{p['slug']}-{name}.svg").write_text(tint(card(t, p, i % 2)))
-        (OUT / f"stack-{name}.svg").write_text(stack(s, name))
+        for icon in icons:
+            (OUT / "stack" / f"{icon}-{name}.svg").write_text(skillicon(icon, name))
         for i, c in enumerate(contrib):
             (OUT / f"{c['slug']}-{name}.svg").write_text(tint(card(t, c, i % 2)))
     for old in OUT.glob("contrib-*.svg"):
         if not any(old.name.startswith(c["slug"] + "-") for c in contrib):
             old.unlink()
-    write_readme(contrib)
+    write_readme(contrib, icons)
     print(json.dumps({k: v for k, v in s.items() if k not in ("days", "langs", "latest")}))
 
 
