@@ -343,7 +343,7 @@ def header(t, s):
 <g class="f" style="animation-delay:.4s">
 <rect class="card" x="{px + .5}" y="{py + .5}" width="{pw - 1}" height="{ph - 1}" rx="12"/>
 <circle class="live a4" style="animation:pulse 2.4s ease-in-out infinite,d4 {DRIFT}s ease-in-out infinite" cx="{px + 26}" cy="{py + 25}" r="3.5"/>
-<text x="{px + 38}" y="{py + 29}" class="mute" font-size="12">right now</text>
+<text x="{px + 38}" y="{py + 29}" class="mute" font-size="12">stuff abt me :D</text>
 <line class="sep" x1="{px + 22}" y1="{py + 40}" x2="{px + pw - 22}" y2="{py + 40}"/>
 </g>
 {''.join(panel)}
