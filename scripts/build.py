@@ -50,6 +50,9 @@ ICONS = {
     "issue": '<circle r="5.8"/><circle class="dotfill" r="1.3" stroke="none"/>',
 }
 
+HUES = [215, 155, 35, 280, 190, 12]
+DRIFT = 72
+
 LOOP = 14
 LOOP_START = 4
 
@@ -232,8 +235,40 @@ def fetch():
     }
 
 
+def hsl(h, sat, light):
+    import colorsys
+    r, g, b = colorsys.hls_to_rgb(h / 360, light / 100, sat / 100)
+    return "#%02x%02x%02x" % (round(r * 255), round(g * 255), round(b * 255))
+
+
+def drift(t):
+    dark = t["bg"] == "#0d1117"
+    levels = {
+        1: (22, 32 if dark else 80),
+        2: (26, 44 if dark else 66),
+        3: (30, 58 if dark else 52),
+        4: (32, 74 if dark else 36),
+    }
+    n = len(HUES)
+    css = []
+    for lvl, (sat, light) in levels.items():
+        stops = []
+        for i, h in enumerate(HUES + HUES[:1]):
+            c = hsl(h, sat, light)
+            stops.append(f"{100 * i / n:.2f}%{{fill:{c}}}")
+            if i < n:
+                stops.append(f"{100 * (i + 0.55) / n:.2f}%{{fill:{c}}}")
+        keys = "".join(stops)
+        css.append(f"@keyframes d{lvl}{{{keys}}}")
+        css.append(f"@keyframes e{lvl}{{{keys.replace('fill:', 'stroke:')}}}")
+        css.append(f".a{lvl}{{animation:d{lvl} {DRIFT}s ease-in-out infinite}}")
+        css.append(f".s{lvl}{{animation:e{lvl} {DRIFT}s ease-in-out infinite}}")
+    return "\n".join(css)
+
+
 def style(t, extra=""):
     return f"""<style>
+{drift(t)}
 .bg{{fill:{t['bg']}}}
 .card{{fill:{t['card']};stroke:{t['border']};stroke-width:1}}
 .fg{{fill:{t['fg']};font-family:{SANS}}}
@@ -267,7 +302,7 @@ def header(t, s):
     for i, word in enumerate(words):
         cyc.append(
             f'<text x="2" y="160" class="word" style="animation-delay:{1.4 + i * 3}s">'
-            f'<tspan class="ghost">i build </tspan><tspan class="hl">{escape(word)}</tspan></text>'
+            f'<tspan class="ghost">i build </tspan><tspan class="hl a4">{escape(word)}</tspan></text>'
         )
     top = s["langs"][0][0].lower() if s["langs"] else "-"
     rows = [
@@ -289,9 +324,9 @@ def header(t, s):
     extra = f"""
 .word{{font-family:{SANS};font-size:22px;opacity:0;animation:cyc {cycle}s ease-in-out infinite}}
 .ghost{{fill:transparent}}
-.hl{{fill:{t['fg']};font-weight:500}}
+.hl{{font-weight:500}}
 @keyframes cyc{{0%{{opacity:0}}{pct*0.15:.2f}%{{opacity:1}}{pct*0.85:.2f}%{{opacity:1}}{pct:.2f}%{{opacity:0}}100%{{opacity:0}}}}
-.live{{fill:{t['fg']};animation:pulse 2.4s ease-in-out infinite}}
+.live{{animation:pulse 2.4s ease-in-out infinite}}
 @keyframes pulse{{0%,100%{{opacity:1}}50%{{opacity:.25}}}}
 .sep{{stroke:{t['border']};stroke-width:1}}
 """
@@ -305,7 +340,7 @@ def header(t, s):
 </g>
 <g class="f" style="animation-delay:.4s">
 <rect class="card" x="{px + .5}" y="{py + .5}" width="{pw - 1}" height="{ph - 1}" rx="12"/>
-<circle class="live" cx="{px + 26}" cy="{py + 25}" r="3.5"/>
+<circle class="live a4" style="animation:pulse 2.4s ease-in-out infinite,d4 {DRIFT}s ease-in-out infinite" cx="{px + 26}" cy="{py + 25}" r="3.5"/>
 <text x="{px + 38}" y="{py + 29}" class="mute" font-size="12">right now</text>
 <line class="sep" x1="{px + 22}" y1="{py + 40}" x2="{px + pw - 22}" y2="{py + 40}"/>
 </g>
@@ -436,14 +471,15 @@ def stats(t, s):
         x = gx0 + col * (size + gap)
         y = 118 + row * (size + gap)
         delay = 0.5 + col * 0.025 + row * 0.02
+        fill = "" if lvl else f' fill="{t["cells"][0]}"'
         cells.append(
-            f'<rect class="cell" x="{x:.1f}" y="{y}" width="{size}" height="{size}" rx="2.5" fill="{t["cells"][lvl]}" style="{loop("pop .5s cubic-bezier(.2,.7,.2,1)", delay, "wave")}"/>'
+            f'<g class="a{lvl}"><rect class="cell" x="{x:.1f}" y="{y}" width="{size}" height="{size}" rx="2.5"{fill} style="{loop("pop .5s cubic-bezier(.2,.7,.2,1)", delay, "wave")}"/></g>'
         )
     legend_x = w - 24 - 5 * 14 - 70
     legend = [f'<text x="{legend_x}" y="232" class="faint f" font-size="10" style="animation-delay:2s">less</text>']
     for i in range(5):
         legend.append(
-            f'<rect class="f" x="{legend_x + 30 + i * 14}" y="223" width="10" height="10" rx="2" fill="{t["cells"][i]}" style="animation-delay:2s"/>'
+            f'<g class="a{i}"><rect class="f" x="{legend_x + 30 + i * 14}" y="223" width="10" height="10" rx="2"{"" if i else " fill=" + chr(34) + t["cells"][0] + chr(34)} style="animation-delay:2s"/></g>'
         )
     legend.append(
         f'<text x="{legend_x + 30 + 5 * 14 + 4}" y="232" class="faint f" font-size="10" style="animation-delay:2s">more</text>'
@@ -500,7 +536,7 @@ def ghstats(t, s):
 @keyframes up{{to{{transform:scaleY(1)}}}}
 @keyframes reup{{0%{{transform:scaleY(1)}}3%{{transform:scaleY(0)}}9%{{transform:scaleY(1)}}100%{{transform:scaleY(1)}}}}
 .track{{fill:none;stroke:{t['border']};stroke-width:6}}
-.arc{{fill:none;stroke:{t['fg']};stroke-width:6;stroke-linecap:round;stroke-dasharray:{circ:.1f};stroke-dashoffset:{circ:.1f}}}
+.arc{{fill:none;stroke:inherit;stroke-width:6;stroke-linecap:round;stroke-dasharray:{circ:.1f};stroke-dashoffset:{circ:.1f}}}
 @keyframes fill{{to{{stroke-dashoffset:{circ - circ * (100 - pct) / 100:.1f}}}}}
 @keyframes refill{{0%{{stroke-dashoffset:{circ - circ * (100 - pct) / 100:.1f}}}3%{{stroke-dashoffset:{circ:.1f}}}12%{{stroke-dashoffset:{circ - circ * (100 - pct) / 100:.1f}}}100%{{stroke-dashoffset:{circ - circ * (100 - pct) / 100:.1f}}}}}
 """
@@ -525,10 +561,10 @@ def ghstats(t, s):
     for i, (m, n) in enumerate(months):
         bh = max(2, (base - top) * n / peak)
         x = cx0 + i * bw + 5
-        shade = t["cells"][4] if n == peak else t["cells"][3]
+        shade = 4 if n == peak else 3
         bars.append(
-            f'<rect class="bar" x="{x:.1f}" y="{base - bh:.1f}" width="{bw - 10:.1f}" height="{bh:.1f}" rx="3" fill="{shade}" '
-            f'style="{loop("up .9s cubic-bezier(.6,0,.2,1)", 0.3 + i * 0.06, "reup")}"/>'
+            f'<g class="a{shade}"><rect class="bar" x="{x:.1f}" y="{base - bh:.1f}" width="{bw - 10:.1f}" height="{bh:.1f}" rx="3" '
+            f'style="{loop("up .9s cubic-bezier(.6,0,.2,1)", 0.3 + i * 0.06, "reup")}"/></g>'
             f'<text x="{x + (bw - 10) / 2:.1f}" y="{base + 18}" class="faint f" font-size="10" text-anchor="middle" style="animation-delay:1s">'
             f'{datetime.strptime(m, "%Y-%m").strftime("%b").lower()[0]}</text>'
         )
@@ -546,7 +582,7 @@ def ghstats(t, s):
 <line class="sep f" x1="440" y1="24" x2="440" y2="{h - 24}" style="animation-delay:.3s"/>
 <text x="{rx}" y="34" class="fg r" font-size="14" font-weight="600" text-anchor="middle">rank</text>
 <circle class="track f" cx="{rx}" cy="{ry}" r="{rr}" style="animation-delay:.2s"/>
-<circle class="arc" cx="{rx}" cy="{ry}" r="{rr}" transform="rotate(-90 {rx} {ry})" style="animation:fill 1.4s cubic-bezier(.6,0,.2,1) .4s forwards,refill {LOOP}s cubic-bezier(.4,0,.2,1) {LOOP_START + .4}s infinite"/>
+<g class="s4"><circle class="arc" cx="{rx}" cy="{ry}" r="{rr}" transform="rotate(-90 {rx} {ry})" style="animation:fill 1.4s cubic-bezier(.6,0,.2,1) .4s forwards,refill {LOOP}s cubic-bezier(.4,0,.2,1) {LOOP_START + .4}s infinite"/></g>
 <text x="{rx}" y="{ry + 10}" class="fg r" font-size="28" font-weight="700" text-anchor="middle" style="animation-delay:.9s">{level}</text>
 <text x="{rx}" y="{ry + rr + 30}" class="faint r" font-size="11" text-anchor="middle" style="animation-delay:1s">top {pct:.0f}%</text>
 {''.join(items)}
@@ -573,13 +609,14 @@ def languages(t, s):
     lx = bx
     for i, (name, v) in enumerate(top):
         sw = bw * v / total
+        paint = "" if i < 4 else f' fill="{t["bars"][i]}"'
         segs.append(
-            f'<rect class="seg" x="{x:.2f}" y="28" width="{max(sw - 2, 1):.2f}" height="8" rx="2" fill="{t["bars"][i]}" style="{loop("grow 1s cubic-bezier(.6,0,.2,1)", 0.1 + i * 0.12, "regrow")}"/>'
+            f'<g class="a{max(4 - i, 0)}"><rect class="seg" x="{x:.2f}" y="28" width="{max(sw - 2, 1):.2f}" height="8" rx="2"{paint} style="{loop("grow 1s cubic-bezier(.6,0,.2,1)", 0.1 + i * 0.12, "regrow")}"/></g>'
         )
         x += sw
         label = f"{name.lower()}  {100 * v / total:.1f}%"
         legend.append(
-            f'<g class="r" style="animation-delay:{0.6 + i * 0.08:.2f}s"><circle cx="{lx + 5}" cy="70" r="4" fill="{t["bars"][i]}" stroke="{t["border"]}"/>'
+            f'<g class="r" style="animation-delay:{0.6 + i * 0.08:.2f}s"><g class="a{max(4 - i, 0)}"><circle cx="{lx + 5}" cy="70" r="4"{paint} style="stroke:{t["border"]}"/></g>'
             f'<text x="{lx + 16}" y="74" class="mute" font-size="12">{escape(label)}</text></g>'
         )
         lx += len(label) * 6.6 + 40

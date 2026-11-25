@@ -1,5 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="840" height="200" viewBox="0 0 840 200">
 <style>
+@keyframes d1{0.00%{fill:#404f64}9.17%{fill:#404f64}16.67%{fill:#406455}25.83%{fill:#406455}33.33%{fill:#645540}42.50%{fill:#645540}50.00%{fill:#584064}59.17%{fill:#584064}66.67%{fill:#405e64}75.83%{fill:#405e64}83.33%{fill:#644740}92.50%{fill:#644740}100.00%{fill:#404f64}}
+@keyframes e1{0.00%{stroke:#404f64}9.17%{stroke:#404f64}16.67%{stroke:#406455}25.83%{stroke:#406455}33.33%{stroke:#645540}42.50%{stroke:#645540}50.00%{stroke:#584064}59.17%{stroke:#584064}66.67%{stroke:#405e64}75.83%{stroke:#405e64}83.33%{stroke:#644740}92.50%{stroke:#644740}100.00%{stroke:#404f64}}
+.a1{animation:d1 72s ease-in-out infinite}
+.s1{animation:e1 72s ease-in-out infinite}
+@keyframes d2{0.00%{fill:#536b8d}9.17%{fill:#536b8d}16.67%{fill:#538d75}25.83%{fill:#538d75}33.33%{fill:#8d7553}42.50%{fill:#8d7553}50.00%{fill:#7a538d}59.17%{fill:#7a538d}66.67%{fill:#53848d}75.83%{fill:#53848d}83.33%{fill:#8d5f53}92.50%{fill:#8d5f53}100.00%{fill:#536b8d}}
+@keyframes e2{0.00%{stroke:#536b8d}9.17%{stroke:#536b8d}16.67%{stroke:#538d75}25.83%{stroke:#538d75}33.33%{stroke:#8d7553}42.50%{stroke:#8d7553}50.00%{stroke:#7a538d}59.17%{stroke:#7a538d}66.67%{stroke:#53848d}75.83%{stroke:#53848d}83.33%{stroke:#8d5f53}92.50%{stroke:#8d5f53}100.00%{stroke:#536b8d}}
+.a2{animation:d2 72s ease-in-out infinite}
+.s2{animation:e2 72s ease-in-out infinite}
+@keyframes d3{0.00%{fill:#748fb4}9.17%{fill:#748fb4}16.67%{fill:#74b499}25.83%{fill:#74b499}33.33%{fill:#b49974}42.50%{fill:#b49974}50.00%{fill:#9f74b4}59.17%{fill:#9f74b4}66.67%{fill:#74a9b4}75.83%{fill:#74a9b4}83.33%{fill:#b48174}92.50%{fill:#b48174}100.00%{fill:#748fb4}}
+@keyframes e3{0.00%{stroke:#748fb4}9.17%{stroke:#748fb4}16.67%{stroke:#74b499}25.83%{stroke:#74b499}33.33%{stroke:#b49974}42.50%{stroke:#b49974}50.00%{stroke:#9f74b4}59.17%{stroke:#9f74b4}66.67%{stroke:#74a9b4}75.83%{stroke:#74a9b4}83.33%{stroke:#b48174}92.50%{stroke:#b48174}100.00%{stroke:#748fb4}}
+.a3{animation:d3 72s ease-in-out infinite}
+.s3{animation:e3 72s ease-in-out infinite}
+@keyframes d4{0.00%{fill:#a7b9d2}9.17%{fill:#a7b9d2}16.67%{fill:#a7d2c0}25.83%{fill:#a7d2c0}33.33%{fill:#d2c0a7}42.50%{fill:#d2c0a7}50.00%{fill:#c4a7d2}59.17%{fill:#c4a7d2}66.67%{fill:#a7cbd2}75.83%{fill:#a7cbd2}83.33%{fill:#d2b0a7}92.50%{fill:#d2b0a7}100.00%{fill:#a7b9d2}}
+@keyframes e4{0.00%{stroke:#a7b9d2}9.17%{stroke:#a7b9d2}16.67%{stroke:#a7d2c0}25.83%{stroke:#a7d2c0}33.33%{stroke:#d2c0a7}42.50%{stroke:#d2c0a7}50.00%{stroke:#c4a7d2}59.17%{stroke:#c4a7d2}66.67%{stroke:#a7cbd2}75.83%{stroke:#a7cbd2}83.33%{stroke:#d2b0a7}92.50%{stroke:#d2b0a7}100.00%{stroke:#a7b9d2}}
+.a4{animation:d4 72s ease-in-out infinite}
+.s4{animation:e4 72s ease-in-out infinite}
 .bg{fill:#0d1117}
 .card{fill:#11161d;stroke:#262c36;stroke-width:1}
 .fg{fill:#e6edf3;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif}
@@ -14,9 +30,9 @@
 
 .word{font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:22px;opacity:0;animation:cyc 12s ease-in-out infinite}
 .ghost{fill:transparent}
-.hl{fill:#e6edf3;font-weight:500}
+.hl{font-weight:500}
 @keyframes cyc{0%{opacity:0}3.75%{opacity:1}21.25%{opacity:1}25.00%{opacity:0}100%{opacity:0}}
-.live{fill:#e6edf3;animation:pulse 2.4s ease-in-out infinite}
+.live{animation:pulse 2.4s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
 .sep{stroke:#262c36;stroke-width:1}
 
@@ -25,11 +41,11 @@
 <text x="2" y="48" class="mute r" font-size="18">hey there, i'm</text>
 <text x="0" y="118" class="fg r" font-size="72" font-weight="700" style="animation-delay:.12s">aarav</text>
 <text x="2" y="160" class="mute f" font-size="22" style="animation-delay:.9s">i build</text>
-<text x="2" y="160" class="word" style="animation-delay:1.4s"><tspan class="ghost">i build </tspan><tspan class="hl">macOS apps</tspan></text><text x="2" y="160" class="word" style="animation-delay:4.4s"><tspan class="ghost">i build </tspan><tspan class="hl">web tools</tspan></text><text x="2" y="160" class="word" style="animation-delay:7.4s"><tspan class="ghost">i build </tspan><tspan class="hl">word games</tspan></text><text x="2" y="160" class="word" style="animation-delay:10.4s"><tspan class="ghost">i build </tspan><tspan class="hl">dev utilities</tspan></text>
+<text x="2" y="160" class="word" style="animation-delay:1.4s"><tspan class="ghost">i build </tspan><tspan class="hl a4">macOS apps</tspan></text><text x="2" y="160" class="word" style="animation-delay:4.4s"><tspan class="ghost">i build </tspan><tspan class="hl a4">web tools</tspan></text><text x="2" y="160" class="word" style="animation-delay:7.4s"><tspan class="ghost">i build </tspan><tspan class="hl a4">word games</tspan></text><text x="2" y="160" class="word" style="animation-delay:10.4s"><tspan class="ghost">i build </tspan><tspan class="hl a4">dev utilities</tspan></text>
 </g>
 <g class="f" style="animation-delay:.4s">
 <rect class="card" x="500.5" y="22.5" width="339" height="161" rx="12"/>
-<circle class="live" cx="526" cy="47" r="3.5"/>
+<circle class="live a4" style="animation:pulse 2.4s ease-in-out infinite,d4 72s ease-in-out infinite" cx="526" cy="47" r="3.5"/>
 <text x="538" y="51" class="mute" font-size="12">right now</text>
 <line class="sep" x1="522" y1="62" x2="818" y2="62"/>
 </g>

@@ -1,5 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="133" height="32" viewBox="0 0 133 32">
 <style>
+@keyframes d1{0.00%{fill:#c1cad7}9.17%{fill:#c1cad7}16.67%{fill:#c1d7ce}25.83%{fill:#c1d7ce}33.33%{fill:#d7cec1}42.50%{fill:#d7cec1}50.00%{fill:#d0c1d7}59.17%{fill:#d0c1d7}66.67%{fill:#c1d3d7}75.83%{fill:#c1d3d7}83.33%{fill:#d7c5c1}92.50%{fill:#d7c5c1}100.00%{fill:#c1cad7}}
+@keyframes e1{0.00%{stroke:#c1cad7}9.17%{stroke:#c1cad7}16.67%{stroke:#c1d7ce}25.83%{stroke:#c1d7ce}33.33%{stroke:#d7cec1}42.50%{stroke:#d7cec1}50.00%{stroke:#d0c1d7}59.17%{stroke:#d0c1d7}66.67%{stroke:#c1d3d7}75.83%{stroke:#c1d3d7}83.33%{stroke:#d7c5c1}92.50%{stroke:#d7c5c1}100.00%{stroke:#c1cad7}}
+.a1{animation:d1 72s ease-in-out infinite}
+.s1{animation:e1 72s ease-in-out infinite}
+@keyframes d2{0.00%{fill:#92a5bf}9.17%{fill:#92a5bf}16.67%{fill:#92bfac}25.83%{fill:#92bfac}33.33%{fill:#bfac92}42.50%{fill:#bfac92}50.00%{fill:#b092bf}59.17%{fill:#b092bf}66.67%{fill:#92b7bf}75.83%{fill:#92b7bf}83.33%{fill:#bf9b92}92.50%{fill:#bf9b92}100.00%{fill:#92a5bf}}
+@keyframes e2{0.00%{stroke:#92a5bf}9.17%{stroke:#92a5bf}16.67%{stroke:#92bfac}25.83%{stroke:#92bfac}33.33%{stroke:#bfac92}42.50%{stroke:#bfac92}50.00%{stroke:#b092bf}59.17%{stroke:#b092bf}66.67%{stroke:#92b7bf}75.83%{stroke:#92b7bf}83.33%{stroke:#bf9b92}92.50%{stroke:#bf9b92}100.00%{stroke:#92a5bf}}
+.a2{animation:d2 72s ease-in-out infinite}
+.s2{animation:e2 72s ease-in-out infinite}
+@keyframes d3{0.00%{fill:#607ea9}9.17%{fill:#607ea9}16.67%{fill:#60a98b}25.83%{fill:#60a98b}33.33%{fill:#a98b60}42.50%{fill:#a98b60}50.00%{fill:#9160a9}59.17%{fill:#9160a9}66.67%{fill:#609da9}75.83%{fill:#609da9}83.33%{fill:#a96f60}92.50%{fill:#a96f60}100.00%{fill:#607ea9}}
+@keyframes e3{0.00%{stroke:#607ea9}9.17%{stroke:#607ea9}16.67%{stroke:#60a98b}25.83%{stroke:#60a98b}33.33%{stroke:#a98b60}42.50%{stroke:#a98b60}50.00%{stroke:#9160a9}59.17%{stroke:#9160a9}66.67%{stroke:#609da9}75.83%{stroke:#609da9}83.33%{stroke:#a96f60}92.50%{stroke:#a96f60}100.00%{stroke:#607ea9}}
+.a3{animation:d3 72s ease-in-out infinite}
+.s3{animation:e3 72s ease-in-out infinite}
+@keyframes d4{0.00%{fill:#3e5779}9.17%{fill:#3e5779}16.67%{fill:#3e7961}25.83%{fill:#3e7961}33.33%{fill:#79613e}42.50%{fill:#79613e}50.00%{fill:#663e79}59.17%{fill:#663e79}66.67%{fill:#3e6f79}75.83%{fill:#3e6f79}83.33%{fill:#794a3e}92.50%{fill:#794a3e}100.00%{fill:#3e5779}}
+@keyframes e4{0.00%{stroke:#3e5779}9.17%{stroke:#3e5779}16.67%{stroke:#3e7961}25.83%{stroke:#3e7961}33.33%{stroke:#79613e}42.50%{stroke:#79613e}50.00%{stroke:#663e79}59.17%{stroke:#663e79}66.67%{stroke:#3e6f79}75.83%{stroke:#3e6f79}83.33%{stroke:#794a3e}92.50%{stroke:#794a3e}100.00%{stroke:#3e5779}}
+.a4{animation:d4 72s ease-in-out infinite}
+.s4{animation:e4 72s ease-in-out infinite}
 .bg{fill:#ffffff}
 .card{fill:#f6f8fa;stroke:#d0d7de;stroke-width:1}
 .fg{fill:#1f2328;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif}
