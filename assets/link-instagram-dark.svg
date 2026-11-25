@@ -20,7 +20,9 @@
 .card{fill:#11161d;stroke:#262c36;stroke-width:1}
 .fg{fill:#e6edf3;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif}
 .mute{fill:#8b949e;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif}
-.faint{fill:#6e7681;font-family:ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace}
+.faint{font-family:ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace}
+.ico,.arrow,.ic{animation:e3 72s ease-in-out infinite}
+.tag{animation:e2 72s ease-in-out infinite}
 .mono{font-family:ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
@@ -32,9 +34,11 @@
 .ic{stroke:#8b949e;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
 
 </style>
+<g class="a3">
 <g class="r" style="animation-delay:1.40s">
 <rect class="pl" x=".5" y=".5" width="132" height="31" rx="15.5"/>
 <g class="ic" transform="translate(20,16)"><rect x="-6.5" y="-6.5" width="13" height="13" rx="3.8"/><circle r="3"/><circle cx="3.6" cy="-3.6" r=".35"/></g>
 <text x="34" y="20.5" class="fg" font-size="13" font-weight="500">say hi (p2)</text>
+</g>
 </g>
 </svg>

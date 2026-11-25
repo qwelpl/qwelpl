@@ -273,7 +273,9 @@ def style(t, extra=""):
 .card{{fill:{t['card']};stroke:{t['border']};stroke-width:1}}
 .fg{{fill:{t['fg']};font-family:{SANS}}}
 .mute{{fill:{t['mute']};font-family:{SANS}}}
-.faint{{fill:{t['faint']};font-family:{MONO}}}
+.faint{{font-family:{MONO}}}
+.ico,.arrow,.ic{{animation:e3 {DRIFT}s ease-in-out infinite}}
+.tag{{animation:e2 {DRIFT}s ease-in-out infinite}}
 .mono{{font-family:{MONO}}}
 @keyframes rise{{from{{opacity:0;transform:translateY(8px)}}to{{opacity:1;transform:translateY(0)}}}}
 @keyframes fade{{from{{opacity:0}}to{{opacity:1}}}}
@@ -379,7 +381,7 @@ def card(t, p, i):
         title = f'<tspan class="mute" font-weight="400">{escape(owner)} / </tspan>{title}'
 
     extra = f"""
-.edge{{fill:none;stroke:{t['fg']};stroke-width:1.2;stroke-dasharray:1100;stroke-dashoffset:1100;opacity:.55;animation:draw 1.8s cubic-bezier(.6,0,.2,1) {0.15 * i:.2f}s forwards, fade-out 1.2s ease {1.9 + 0.15 * i:.2f}s forwards}}
+.edge{{fill:none;stroke:{t['fg']};stroke-width:1.2;stroke-dasharray:1100;stroke-dashoffset:1100;opacity:.55;animation:draw 1.8s cubic-bezier(.6,0,.2,1) {0.15 * i:.2f}s forwards, fade-out 1.2s ease {1.9 + 0.15 * i:.2f}s forwards, e4 {DRIFT}s ease-in-out infinite}}
 @keyframes fade-out{{to{{opacity:0}}}}
 .tag{{fill:none;stroke:{t['border']}}}
 .arrow{{stroke:{t['mute']};stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round}}
@@ -535,7 +537,7 @@ def ghstats(t, s):
 .bar{{transform-box:fill-box;transform-origin:bottom;transform:scaleY(0)}}
 @keyframes up{{to{{transform:scaleY(1)}}}}
 @keyframes reup{{0%{{transform:scaleY(1)}}3%{{transform:scaleY(0)}}9%{{transform:scaleY(1)}}100%{{transform:scaleY(1)}}}}
-.track{{fill:none;stroke:{t['border']};stroke-width:6}}
+.track{{fill:none;stroke:inherit;stroke-width:6}}
 .arc{{fill:none;stroke:inherit;stroke-width:6;stroke-linecap:round;stroke-dasharray:{circ:.1f};stroke-dashoffset:{circ:.1f}}}
 @keyframes fill{{to{{stroke-dashoffset:{circ - circ * (100 - pct) / 100:.1f}}}}}
 @keyframes refill{{0%{{stroke-dashoffset:{circ - circ * (100 - pct) / 100:.1f}}}3%{{stroke-dashoffset:{circ:.1f}}}12%{{stroke-dashoffset:{circ - circ * (100 - pct) / 100:.1f}}}100%{{stroke-dashoffset:{circ - circ * (100 - pct) / 100:.1f}}}}}
@@ -581,7 +583,7 @@ def ghstats(t, s):
 <line class="sep f" x1="306" y1="24" x2="306" y2="{h - 24}" style="animation-delay:.3s"/>
 <line class="sep f" x1="440" y1="24" x2="440" y2="{h - 24}" style="animation-delay:.3s"/>
 <text x="{rx}" y="34" class="fg r" font-size="14" font-weight="600" text-anchor="middle">rank</text>
-<circle class="track f" cx="{rx}" cy="{ry}" r="{rr}" style="animation-delay:.2s"/>
+<g class="s1"><circle class="track f" cx="{rx}" cy="{ry}" r="{rr}" style="animation-delay:.2s"/></g>
 <g class="s4"><circle class="arc" cx="{rx}" cy="{ry}" r="{rr}" transform="rotate(-90 {rx} {ry})" style="animation:fill 1.4s cubic-bezier(.6,0,.2,1) .4s forwards,refill {LOOP}s cubic-bezier(.4,0,.2,1) {LOOP_START + .4}s infinite"/></g>
 <text x="{rx}" y="{ry + 10}" class="fg r" font-size="28" font-weight="700" text-anchor="middle" style="animation-delay:.9s">{level}</text>
 <text x="{rx}" y="{ry + rr + 30}" class="faint r" font-size="11" text-anchor="middle" style="animation-delay:1s">top {pct:.0f}%</text>
@@ -609,14 +611,14 @@ def languages(t, s):
     lx = bx
     for i, (name, v) in enumerate(top):
         sw = bw * v / total
-        paint = "" if i < 4 else f' fill="{t["bars"][i]}"'
+        paint = ""
         segs.append(
-            f'<g class="a{max(4 - i, 0)}"><rect class="seg" x="{x:.2f}" y="28" width="{max(sw - 2, 1):.2f}" height="8" rx="2"{paint} style="{loop("grow 1s cubic-bezier(.6,0,.2,1)", 0.1 + i * 0.12, "regrow")}"/></g>'
+            f'<g class="a{max(4 - i, 1)}"><rect class="seg" x="{x:.2f}" y="28" width="{max(sw - 2, 1):.2f}" height="8" rx="2"{paint} style="{loop("grow 1s cubic-bezier(.6,0,.2,1)", 0.1 + i * 0.12, "regrow")}"/></g>'
         )
         x += sw
         label = f"{name.lower()}  {100 * v / total:.1f}%"
         legend.append(
-            f'<g class="r" style="animation-delay:{0.6 + i * 0.08:.2f}s"><g class="a{max(4 - i, 0)}"><circle cx="{lx + 5}" cy="70" r="4"{paint} style="stroke:{t["border"]}"/></g>'
+            f'<g class="r" style="animation-delay:{0.6 + i * 0.08:.2f}s"><g class="a{max(4 - i, 1)}"><circle cx="{lx + 5}" cy="70" r="4"{paint} style="stroke:{t["border"]}"/></g>'
             f'<text x="{lx + 16}" y="74" class="mute" font-size="12">{escape(label)}</text></g>'
         )
         lx += len(label) * 6.6 + 40
@@ -713,22 +715,28 @@ def write_readme(contrib):
     readme.write_text(text[:start] + block + text[end:])
 
 
+def tint(svg):
+    head, _, body = svg.partition("</style>")
+    body, _, tail = body.rpartition("</svg>")
+    return f'{head}</style>\n<g class="a3">{body}</g>\n</svg>{tail}'
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     s = fetch()
     contrib = contributed()
     for name, t in THEMES.items():
-        (OUT / f"header-{name}.svg").write_text(header(t, s))
-        (OUT / f"stats-{name}.svg").write_text(stats(t, s))
-        (OUT / f"ghstats-{name}.svg").write_text(ghstats(t, s))
-        (OUT / f"langs-{name}.svg").write_text(languages(t, s))
+        (OUT / f"header-{name}.svg").write_text(tint(header(t, s)))
+        (OUT / f"stats-{name}.svg").write_text(tint(stats(t, s)))
+        (OUT / f"ghstats-{name}.svg").write_text(tint(ghstats(t, s)))
+        (OUT / f"langs-{name}.svg").write_text(tint(languages(t, s)))
         for i, (slug, label, icon) in enumerate(LINKS):
-            (OUT / f"link-{slug}-{name}.svg").write_text(pill(t, label, icon, i))
+            (OUT / f"link-{slug}-{name}.svg").write_text(tint(pill(t, label, icon, i)))
         for i, p in enumerate(PROJECTS):
-            (OUT / f"{p['slug']}-{name}.svg").write_text(card(t, p, i % 2))
+            (OUT / f"{p['slug']}-{name}.svg").write_text(tint(card(t, p, i % 2)))
         (OUT / f"stack-{name}.svg").write_text(stack(s, name))
         for i, c in enumerate(contrib):
-            (OUT / f"{c['slug']}-{name}.svg").write_text(card(t, c, i % 2))
+            (OUT / f"{c['slug']}-{name}.svg").write_text(tint(card(t, c, i % 2)))
     for old in OUT.glob("contrib-*.svg"):
         if not any(old.name.startswith(c["slug"] + "-") for c in contrib):
             old.unlink()
