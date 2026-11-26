@@ -6,6 +6,8 @@
 
 <br>
 
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/runners-dark.svg"><img alt="" src="assets/runners-light.svg" width="100%"></picture>
+
 ### projects
 
 <a href="https://tiledrop.vercel.app"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/tiledrop-dark.svg"><img alt="tiledrop" src="assets/tiledrop-light.svg" width="49%"></picture></a>&nbsp;<a href="https://github.com/qwelpl/barloom"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/barloom-dark.svg"><img alt="barloom" src="assets/barloom-light.svg" width="49%"></picture></a>
@@ -48,5 +50,5 @@
 <picture><source media="(prefers-color-scheme: dark)" srcset="assets/stack/react-dark.svg"><img alt="React" title="React" src="assets/stack/react-light.svg" height="40"></picture>&nbsp;
 <picture><source media="(prefers-color-scheme: dark)" srcset="assets/stack/tailwind-dark.svg"><img alt="Tailwind CSS" title="Tailwind CSS" src="assets/stack/tailwind-light.svg" height="40"></picture>&nbsp;
 <picture><source media="(prefers-color-scheme: dark)" srcset="assets/stack/nextjs-dark.svg"><img alt="Next.js" title="Next.js" src="assets/stack/nextjs-light.svg" height="40"></picture>&nbsp;
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/stack/supabase-dark.svg"><img alt="Supabase" title="Supabase" src="assets/stack/supabase-light.svg" height="40"></picture>&nbsp;
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/stack/vercel-dark.svg"><img alt="Vercel" title="Vercel" src="assets/stack/vercel-light.svg" height="40"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/stack/vercel-dark.svg"><img alt="Vercel" title="Vercel" src="assets/stack/vercel-light.svg" height="40"></picture>&nbsp;
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/stack/supabase-dark.svg"><img alt="Supabase" title="Supabase" src="assets/stack/supabase-light.svg" height="40"></picture>

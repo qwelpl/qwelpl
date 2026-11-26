@@ -739,6 +739,73 @@ def write_readme(contrib, icons):
     readme.write_text(text)
 
 
+def runners(t):
+    w, h, ground = 840, 84, 74
+    span = w + 120
+    hurdle = 540
+    figs = [
+        {"dur": 11, "delay": -2.0, "step": 0.42, "jump": False, "flip": False},
+        {"dur": 10.2, "delay": -3.1, "step": 0.4, "jump": False, "flip": False},
+        {"dur": 13, "delay": -8.5, "step": 0.46, "jump": True, "flip": False},
+        {"dur": 16, "delay": -5.0, "step": 0.5, "jump": False, "flip": True},
+    ]
+    f = 100 * (hurdle + 60) / span
+    hop = [(-4, 0), (-3, -9), (-2, -16), (-1, -21), (0, -23), (1, -21), (2, -16), (3, -9), (4, 0)]
+    jump = "".join(f"{f + k * 0.9:.2f}%{{transform:translateY({y}px)}}" for k, y in hop)
+    extra = f"""
+.fig{{fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}}
+@keyframes go{{from{{transform:translateX(-60px)}}to{{transform:translateX({w + 60}px)}}}}
+@keyframes back{{from{{transform:translateX({w + 60}px)}}to{{transform:translateX(-60px)}}}}
+@keyframes thigh{{0%,100%{{transform:rotate(-42deg)}}50%{{transform:rotate(38deg)}}}}
+@keyframes shin{{0%,100%{{transform:rotate(12deg)}}30%{{transform:rotate(18deg)}}55%{{transform:rotate(62deg)}}78%{{transform:rotate(96deg)}}}}
+@keyframes arm{{0%,100%{{transform:rotate(42deg)}}50%{{transform:rotate(-48deg)}}}}
+@keyframes bob{{0%,50%,100%{{transform:translateY(0)}}25%,75%{{transform:translateY(-2.5px)}}}}
+@keyframes hop{{0%,{f - 4 * 0.9:.2f}%,{f + 4 * 0.9:.2f}%,100%{{transform:translateY(0)}}{jump}}}
+.gnd{{stroke-width:1;stroke-dasharray:2 6;fill:none}}
+.hd{{fill:none;stroke-width:1.6;stroke-linecap:round}}
+"""
+    def limb(cls, a, b, step, off, inner=""):
+        return (
+            f'<g style="animation:{cls} {step}s linear {off:.2f}s infinite">'
+            f'<line x1="0" y1="0" x2="0" y2="{a}"/>'
+            f'<g transform="translate(0,{a})"><g style="{inner}"><line x1="0" y1="0" x2="0" y2="{b}"/></g></g></g>'
+        )
+    out = []
+    for i, fg in enumerate(figs):
+        st = fg["step"]
+        half = -st / 2
+        legs = "".join(
+            limb("thigh", 10, 10, st, o, f"animation:shin {st}s linear {o:.2f}s infinite") for o in (0, half)
+        )
+        arms = "".join(
+            limb("arm", 7, 6, st, o, "transform:rotate(-85deg)") for o in (half, 0)
+        )
+        body = (
+            f'<g style="animation:bob {st / 2:.2f}s ease-in-out infinite">'
+            f'<g transform="translate(0,{ground - 20})">'
+            f'{legs}'
+            f'<line x1="0" y1="0" x2="4" y2="-15"/>'
+            f'<g transform="translate(3.4,-12.5)">{arms}</g>'
+            f'<circle class="a4" stroke="none" cx="6" cy="-21" r="4.2"/>'
+            f'</g></g>'
+        )
+        if fg["jump"]:
+            body = f'<g style="animation:hop {fg["dur"]}s linear {fg["delay"]}s infinite">{body}</g>'
+        if fg["flip"]:
+            body = f'<g transform="scale(-1,1)">{body}</g>'
+        move = "back" if fg["flip"] else "go"
+        out.append(
+            f'<g style="animation:{move} {fg["dur"]}s linear {fg["delay"]}s infinite">'
+            f'<g class="s{4 if i % 2 == 0 else 3}"><g class="fig">{body}</g></g></g>'
+        )
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
+{style(t, extra)}
+<g class="s1"><line class="gnd" x1="0" y1="{ground + 0.5}" x2="{w}" y2="{ground + 0.5}"/></g>
+<g class="s2"><path class="hd" d="M{hurdle - 7} {ground} v-13 h14 v13 M{hurdle - 7} {ground - 9} h14"/></g>
+{''.join(out)}
+</svg>"""
+
+
 def tint(svg):
     head, _, body = svg.partition("</style>")
     body, _, tail = body.rpartition("</svg>")
@@ -772,6 +839,7 @@ def main():
         old.unlink()
     for name, t in THEMES.items():
         (OUT / f"header-{name}.svg").write_text(tint(header(t, s)))
+        (OUT / f"runners-{name}.svg").write_text(tint(runners(t)))
         (OUT / f"stats-{name}.svg").write_text(tint(stats(t, s)))
         (OUT / f"ghstats-{name}.svg").write_text(tint(ghstats(t, s)))
         (OUT / f"langs-{name}.svg").write_text(tint(languages(t, s)))
