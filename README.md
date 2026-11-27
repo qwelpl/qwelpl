@@ -6,8 +6,6 @@
 
 <br>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/runners-dark.svg"><img alt="" src="assets/runners-light.svg" width="100%"></picture>
-
 ### projects
 
 <a href="https://tiledrop.vercel.app"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/tiledrop-dark.svg"><img alt="tiledrop" src="assets/tiledrop-light.svg" width="49%"></picture></a>&nbsp;<a href="https://github.com/qwelpl/barloom"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/barloom-dark.svg"><img alt="barloom" src="assets/barloom-light.svg" width="49%"></picture></a>

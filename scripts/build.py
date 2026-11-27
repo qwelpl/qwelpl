@@ -331,9 +331,19 @@ def header(t, s):
 .hl{{font-weight:500}}
 @keyframes cyc{{0%{{opacity:0}}{pct*0.15:.2f}%{{opacity:1}}{pct*0.85:.2f}%{{opacity:1}}{pct:.2f}%{{opacity:0}}100%{{opacity:0}}}}
 .sep{{stroke:{t['border']};stroke-width:1}}
+{FIG_CSS}
+{peek("hside", "rotate(0)", "rotate(-40deg)", at=58, out=82, wobble=("rotate(4deg)", "rotate(-3deg)"))}
+{peek("htop", "translateY(0)", "translateY(-15px)", at=40, out=60, wobble=("translateX(-4px)", "translateX(4px)"))}
+@keyframes hrun{{0%{{transform:translateX(-40px)}}34%{{transform:translateX({w + 40}px)}}100%{{transform:translateX({w + 40}px)}}}}
 """
+    hide = (
+        cameo(px + 14, 150, "hside 15s ease-in-out 2.5s infinite", stand_fig("s4"))
+        + cameo(px + pw - 60, py + 50, "htop 19s ease-in-out 6s infinite", stand_fig("s3", "up"))
+        + cameo(0, h - 3, "hrun 24s linear 1s infinite", run_fig(0.42, "s4"))
+    )
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
 {style(t, extra)}
+{hide}
 <g transform="translate(10,0)">
 <text x="2" y="48" class="mute r" font-size="18">hey there, i'm</text>
 <text x="0" y="118" class="fg r" font-size="72" font-weight="700" style="animation-delay:.12s">aarav</text>
@@ -372,13 +382,14 @@ def pill(t, label, icon, i):
 </svg>"""
 
 
-def card(t, p, i):
+def card(t, p, i, k=0):
     w, h = 410, 132
     owner, _, repo = p["name"].rpartition(" / ")
     title = escape(repo)
     if owner:
         title = f'<tspan class="mute" font-weight="400">{escape(owner)} / </tspan>{title}'
 
+    pk_css, pk = card_cameo(k, w, h)
     extra = f"""
 .edge{{fill:none;stroke:{t['fg']};stroke-width:1.2;stroke-dasharray:1100;stroke-dashoffset:1100;opacity:.55;animation:draw 1.8s cubic-bezier(.6,0,.2,1) {0.15 * i:.2f}s forwards, fade-out 1.2s ease {1.9 + 0.15 * i:.2f}s forwards, e4 {DRIFT}s ease-in-out infinite}}
 @keyframes fade-out{{to{{opacity:0}}}}
@@ -386,6 +397,8 @@ def card(t, p, i):
 .arrow{{stroke:{t['mute']};stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round}}
 .ico{{stroke:{t['mute']};stroke-width:1.4;fill:none;stroke-linecap:round;stroke-linejoin:round}}
 .dotfill{{fill:{t['mute']}}}
+{FIG_CSS}
+{pk_css}
 """
     d = 0.15 * i
     meta = []
@@ -418,6 +431,7 @@ def card(t, p, i):
 <text x="24" y="80" class="mute r" font-size="13" style="animation-delay:{d + 0.48:.2f}s">{escape(p['desc'][1])}</text>
 {''.join(tags)}
 {''.join(meta)}
+{pk}
 </svg>"""
 
 
@@ -436,6 +450,8 @@ def stats(t, s):
 @keyframes wave{{0%{{opacity:1;transform:scale(1)}}2.5%{{opacity:.1;transform:scale(.35)}}6%{{opacity:1;transform:scale(1)}}100%{{opacity:1;transform:scale(1)}}}}
 @keyframes again{{0%{{opacity:1;transform:translateY(0)}}2%{{opacity:0;transform:translateY(8px)}}6%{{opacity:1;transform:translateY(0)}}100%{{opacity:1;transform:translateY(0)}}}}
 .sep{{stroke:{t['border']};stroke-width:1}}
+{FIG_CSS}
+@keyframes srun{{0%{{transform:translateX({w + 40}px)}}40%{{transform:translateX(-40px)}}100%{{transform:translateX(-40px)}}}}
 """
     items = [
         (f"{s['contributions']:,}", "contributions"),
@@ -492,6 +508,7 @@ def stats(t, s):
 {''.join(cols)}
 <line class="sep f" x1="24" y1="102" x2="{w - 24}" y2="102" style="animation-delay:.4s"/>
 {''.join(cells)}
+{cameo(0, 101.5, "srun 21s linear 5s infinite", run_fig(0.4, "s4"), "scale(-1,1)")}
 <text x="24" y="232" class="faint f" font-size="10" style="animation-delay:2s">last 12 months  ·  updated {updated}</text>
 {''.join(legend)}
 </svg>"""
@@ -573,6 +590,29 @@ def ghstats(t, s):
             bars.append(
                 f'<text x="{x + (bw - 10) / 2:.1f}" y="{base - bh - 8:.1f}" class="fg mono f" font-size="11" text-anchor="middle" style="animation-delay:1.2s">{n}</text>'
             )
+    spots = [(cx0 - 14, base)] + [
+        (cx0 + i * bw + bw / 2, base - max(2, (base - top) * n / peak)) for i, (_, n) in enumerate(months)
+    ] + [(cx1 + 12, base)]
+    hop, t0 = 0.55, 2.2
+    keys = [f"0%{{opacity:0;transform:translate({spots[0][0]:.1f}px,{spots[0][1]:.1f}px)}}"]
+    keys.append(f"{100 * (t0 - .4) / LOOP:.2f}%{{opacity:0;transform:translate({spots[0][0]:.1f}px,{spots[0][1]:.1f}px)}}")
+    for j in range(len(spots) - 1):
+        (xa, ya), (xb, yb) = spots[j], spots[j + 1]
+        lift = 10 + max(0, ya - yb) * 0.6
+        for q in range(6):
+            u = q / 6
+            x = xa + (xb - xa) * u
+            y = ya + (yb - ya) * u - lift * 4 * u * (1 - u)
+            keys.append(f"{100 * (t0 + (j + u) * hop) / LOOP:.2f}%{{opacity:1;transform:translate({x:.1f}px,{y:.1f}px)}}")
+    end = t0 + (len(spots) - 1) * hop
+    last = f"translate({spots[-1][0]:.1f}px,{spots[-1][1]:.1f}px)"
+    keys.append(f"{100 * end / LOOP:.2f}%{{opacity:1;transform:{last}}}")
+    keys.append(f"{100 * (end + 1.6) / LOOP:.2f}%{{opacity:1;transform:{last}}}")
+    keys.append(f"{100 * (end + 2.1) / LOOP:.2f}%,100%{{opacity:0;transform:{last}}}")
+    extra += FIG_CSS + "@keyframes ghop{" + "".join(keys) + "}"
+    hopper = (
+        f'<g style="opacity:0;animation:ghop {LOOP}s linear {LOOP_START}s infinite">{stand_fig("s4", "up")}</g>'
+    )
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
 {style(t, extra)}
 <rect class="card" x=".5" y=".5" width="{w - 1}" height="{h - 1}" rx="12"/>
@@ -588,6 +628,7 @@ def ghstats(t, s):
 <text x="{rx}" y="{ry + rr + 30}" class="faint r" font-size="11" text-anchor="middle" style="animation-delay:1s">top {pct:.0f}%</text>
 {''.join(items)}
 {''.join(bars)}
+{hopper}
 </svg>"""
 
 
@@ -602,7 +643,9 @@ def languages(t, s):
 .seg{transform-box:fill-box;transform-origin:left;transform:scaleX(0)}
 @keyframes grow{to{transform:scaleX(1)}}
 @keyframes regrow{0%{transform:scaleX(1)}3%{transform:scaleX(0)}9%{transform:scaleX(1)}100%{transform:scaleX(1)}}
-"""
+@keyframes lwalk{0%{transform:translateX(40px)}48%{transform:translateX(800px)}50%{transform:translateX(800px)}98%{transform:translateX(40px)}100%{transform:translateX(40px)}}
+@keyframes lturn{0%,48%{transform:scaleX(1)}50%,98%{transform:scaleX(-1)}100%{transform:scaleX(1)}}
+""" + FIG_CSS
     bx, bw = 24, w - 48
     segs = []
     legend = []
@@ -626,6 +669,7 @@ def languages(t, s):
 <rect class="card" x=".5" y=".5" width="{w - 1}" height="{h - 1}" rx="12"/>
 <clipPath id="c"><rect x="{bx}" y="28" width="{bw}" height="8" rx="4"/></clipPath>
 <g clip-path="url(#c)">{''.join(segs)}</g>
+<g transform="translate(0,27.5)"><g style="animation:lwalk 34s ease-in-out 1.5s infinite"><g transform="scale(.55)"><g style="animation:lturn 34s linear 1.5s infinite">{run_fig(0.7, "s4")}</g></g></g></g>
 {''.join(legend)}
 </svg>"""
 
@@ -739,71 +783,76 @@ def write_readme(contrib, icons):
     readme.write_text(text)
 
 
-def runners(t):
-    w, h, ground = 840, 84, 74
-    span = w + 120
-    hurdle = 540
-    figs = [
-        {"dur": 11, "delay": -2.0, "step": 0.42, "jump": False, "flip": False},
-        {"dur": 10.2, "delay": -3.1, "step": 0.4, "jump": False, "flip": False},
-        {"dur": 13, "delay": -8.5, "step": 0.46, "jump": True, "flip": False},
-        {"dur": 16, "delay": -5.0, "step": 0.5, "jump": False, "flip": True},
-    ]
-    f = 100 * (hurdle + 60) / span
-    hop = [(-4, 0), (-3, -9), (-2, -16), (-1, -21), (0, -23), (1, -21), (2, -16), (3, -9), (4, 0)]
-    jump = "".join(f"{f + k * 0.9:.2f}%{{transform:translateY({y}px)}}" for k, y in hop)
-    extra = f"""
-.fig{{fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}}
-@keyframes go{{from{{transform:translateX(-60px)}}to{{transform:translateX({w + 60}px)}}}}
-@keyframes back{{from{{transform:translateX({w + 60}px)}}to{{transform:translateX(-60px)}}}}
-@keyframes thigh{{0%,100%{{transform:rotate(-42deg)}}50%{{transform:rotate(38deg)}}}}
-@keyframes shin{{0%,100%{{transform:rotate(12deg)}}30%{{transform:rotate(18deg)}}55%{{transform:rotate(62deg)}}78%{{transform:rotate(96deg)}}}}
-@keyframes arm{{0%,100%{{transform:rotate(42deg)}}50%{{transform:rotate(-48deg)}}}}
-@keyframes bob{{0%,50%,100%{{transform:translateY(0)}}25%,75%{{transform:translateY(-2.5px)}}}}
-@keyframes hop{{0%,{f - 4 * 0.9:.2f}%,{f + 4 * 0.9:.2f}%,100%{{transform:translateY(0)}}{jump}}}
-.gnd{{stroke-width:1;stroke-dasharray:2 6;fill:none}}
-.hd{{fill:none;stroke-width:1.6;stroke-linecap:round}}
+FIG_CSS = """
+.fig{fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+@keyframes xthigh{0%,100%{transform:rotate(-42deg)}50%{transform:rotate(38deg)}}
+@keyframes xshin{0%,100%{transform:rotate(12deg)}30%{transform:rotate(18deg)}55%{transform:rotate(62deg)}78%{transform:rotate(96deg)}}
+@keyframes xarm{0%,100%{transform:rotate(42deg)}50%{transform:rotate(-48deg)}}
+@keyframes xbob{0%,50%,100%{transform:translateY(0)}25%,75%{transform:translateY(-2.5px)}}
+@keyframes xwave{0%,100%{transform:rotate(-130deg)}50%{transform:rotate(-170deg)}}
 """
-    def limb(cls, a, b, step, off, inner=""):
+
+
+def run_fig(step, cls="s4"):
+    def limb(name, a, b, off, inner):
         return (
-            f'<g style="animation:{cls} {step}s linear {off:.2f}s infinite">'
+            f'<g style="animation:{name} {step}s linear {off:.2f}s infinite">'
             f'<line x1="0" y1="0" x2="0" y2="{a}"/>'
             f'<g transform="translate(0,{a})"><g style="{inner}"><line x1="0" y1="0" x2="0" y2="{b}"/></g></g></g>'
         )
-    out = []
-    for i, fg in enumerate(figs):
-        st = fg["step"]
-        half = -st / 2
-        legs = "".join(
-            limb("thigh", 10, 10, st, o, f"animation:shin {st}s linear {o:.2f}s infinite") for o in (0, half)
+    half = -step / 2
+    legs = "".join(limb("xthigh", 10, 10, o, f"animation:xshin {step}s linear {o:.2f}s infinite") for o in (0, half))
+    arms = "".join(limb("xarm", 7, 6, o, "transform:rotate(-85deg)") for o in (half, 0))
+    return (
+        f'<g class="{cls}"><g class="fig"><g style="animation:xbob {step / 2:.2f}s ease-in-out infinite">'
+        f'<g transform="translate(0,-20)">{legs}<line x1="0" y1="0" x2="4" y2="-15"/>'
+        f'<g transform="translate(3.4,-12.5)">{arms}</g>'
+        f'<circle class="a4" stroke="none" cx="6" cy="-21" r="4.2"/></g></g></g></g>'
+    )
+
+
+def stand_fig(cls="s4", pose="wave", speed=0.7):
+    if pose == "up":
+        arms = '<path d="M-7 -22 L0 -12.5 L7 -22"/>'
+    else:
+        arms = (
+            '<g transform="translate(0,-12.5)"><g style="transform:rotate(18deg)"><line x1="0" y1="0" x2="0" y2="12"/></g>'
+            f'<g style="animation:xwave {speed}s ease-in-out infinite"><line x1="0" y1="0" x2="0" y2="12"/></g></g>'
         )
-        arms = "".join(
-            limb("arm", 7, 6, st, o, "transform:rotate(-85deg)") for o in (half, 0)
-        )
-        body = (
-            f'<g style="animation:bob {st / 2:.2f}s ease-in-out infinite">'
-            f'<g transform="translate(0,{ground - 20})">'
-            f'{legs}'
-            f'<line x1="0" y1="0" x2="4" y2="-15"/>'
-            f'<g transform="translate(3.4,-12.5)">{arms}</g>'
-            f'<circle class="a4" stroke="none" cx="6" cy="-21" r="4.2"/>'
-            f'</g></g>'
-        )
-        if fg["jump"]:
-            body = f'<g style="animation:hop {fg["dur"]}s linear {fg["delay"]}s infinite">{body}</g>'
-        if fg["flip"]:
-            body = f'<g transform="scale(-1,1)">{body}</g>'
-        move = "back" if fg["flip"] else "go"
-        out.append(
-            f'<g style="animation:{move} {fg["dur"]}s linear {fg["delay"]}s infinite">'
-            f'<g class="s{4 if i % 2 == 0 else 3}"><g class="fig">{body}</g></g></g>'
-        )
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
-{style(t, extra)}
-<g class="s1"><line class="gnd" x1="0" y1="{ground + 0.5}" x2="{w}" y2="{ground + 0.5}"/></g>
-<g class="s2"><path class="hd" d="M{hurdle - 7} {ground} v-13 h14 v13 M{hurdle - 7} {ground - 9} h14"/></g>
-{''.join(out)}
-</svg>"""
+    return (
+        f'<g class="{cls}"><g class="fig"><g transform="translate(0,-20)">'
+        '<path d="M-3.5 20 L0 0 L3.5 20"/><line x1="0" y1="0" x2="0" y2="-15"/>'
+        f'{arms}<circle class="a4" stroke="none" cx="0" cy="-21" r="4.2"/></g></g></g>'
+    )
+
+
+def cameo(x, y, anim, body, inner=""):
+    if inner:
+        body = f'<g transform="{inner}">{body}</g>'
+    return f'<g transform="translate({x},{y})"><g style="animation:{anim}">{body}</g></g>'
+
+
+def peek(name, hidden, shown, at=55, out=80, wobble=None):
+    a, b = f"transform:{hidden}", f"transform:{shown}"
+    mid = ""
+    if wobble:
+        m = (at + out) / 2
+        mid = f"{m - 4:.1f}%{{transform:{shown} {wobble[0]}}}{m + 4:.1f}%{{transform:{shown} {wobble[1]}}}"
+    return f"@keyframes {name}{{0%,{at - 7}%{{{a}}}{at}%,{out}%{{{b}}}{mid}{out + 6}%,100%{{{a}}}}}"
+
+
+def card_cameo(k, w, h):
+    v = k % 3
+    dur, delay = 17, 2 + k * 1.7
+    anim = f"pk {dur}s ease-in-out {delay:.1f}s infinite"
+    if v == 0:
+        css = peek("pk", "translateY(0)", "translateY(-22px)", wobble=("rotate(-7deg)", "rotate(7deg)"))
+        return css, cameo(250, h + 48, anim, stand_fig("s4", "up"))
+    if v == 1:
+        css = peek("pk", "rotate(0)", "rotate(-38deg)")
+        return css, cameo(w + 14, 96, anim, stand_fig("s4"), "scale(-1,1)")
+    css = peek("pk", "rotate(0)", "rotate(38deg)")
+    return css, cameo(-14, 96, anim, stand_fig("s4"))
 
 
 def tint(svg):
@@ -839,18 +888,17 @@ def main():
         old.unlink()
     for name, t in THEMES.items():
         (OUT / f"header-{name}.svg").write_text(tint(header(t, s)))
-        (OUT / f"runners-{name}.svg").write_text(tint(runners(t)))
         (OUT / f"stats-{name}.svg").write_text(tint(stats(t, s)))
         (OUT / f"ghstats-{name}.svg").write_text(tint(ghstats(t, s)))
         (OUT / f"langs-{name}.svg").write_text(tint(languages(t, s)))
         for i, (slug, label, icon) in enumerate(LINKS):
             (OUT / f"link-{slug}-{name}.svg").write_text(tint(pill(t, label, icon, i)))
         for i, p in enumerate(PROJECTS):
-            (OUT / f"{p['slug']}-{name}.svg").write_text(tint(card(t, p, i % 2)))
+            (OUT / f"{p['slug']}-{name}.svg").write_text(tint(card(t, p, i % 2, i)))
         for icon in icons:
             (OUT / "stack" / f"{icon}-{name}.svg").write_text(skillicon(icon, name))
         for i, c in enumerate(contrib):
-            (OUT / f"{c['slug']}-{name}.svg").write_text(tint(card(t, c, i % 2)))
+            (OUT / f"{c['slug']}-{name}.svg").write_text(tint(card(t, c, i % 2, i + len(PROJECTS))))
     for old in OUT.glob("contrib-*.svg"):
         if not any(old.name.startswith(c["slug"] + "-") for c in contrib):
             old.unlink()
