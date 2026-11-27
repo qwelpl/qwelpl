@@ -36,8 +36,20 @@
 @keyframes cyc{0%{opacity:0}3.75%{opacity:1}21.25%{opacity:1}25.00%{opacity:0}100%{opacity:0}}
 .sep{stroke:#262c36;stroke-width:1}
 
+.fig{fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+@keyframes xthigh{0%,100%{transform:rotate(-42deg)}50%{transform:rotate(38deg)}}
+@keyframes xshin{0%,100%{transform:rotate(12deg)}30%{transform:rotate(18deg)}55%{transform:rotate(62deg)}78%{transform:rotate(96deg)}}
+@keyframes xarm{0%,100%{transform:rotate(42deg)}50%{transform:rotate(-48deg)}}
+@keyframes xbob{0%,50%,100%{transform:translateY(0)}25%,75%{transform:translateY(-2.5px)}}
+@keyframes xwave{0%,100%{transform:rotate(-130deg)}50%{transform:rotate(-170deg)}}
+
+@keyframes hside{0%,51%{transform:rotate(0)}58%,82%{transform:rotate(-40deg)}66.0%{transform:rotate(-40deg) rotate(4deg)}74.0%{transform:rotate(-40deg) rotate(-3deg)}88%,100%{transform:rotate(0)}}
+@keyframes htop{0%,33%{transform:translateY(0)}40%,60%{transform:translateY(-15px)}46.0%{transform:translateY(-15px) translateX(-4px)}54.0%{transform:translateY(-15px) translateX(4px)}66%,100%{transform:translateY(0)}}
+@keyframes hrun{0%{transform:translateX(-40px)}34%{transform:translateX(880px)}100%{transform:translateX(880px)}}
+
 </style>
 <g class="a3">
+<g transform="translate(514,150)"><g style="animation:hside 15s ease-in-out 2.5s infinite"><g class="s4"><g class="fig"><g transform="translate(0,-20)"><path d="M-3.5 20 L0 0 L3.5 20"/><line x1="0" y1="0" x2="0" y2="-15"/><g transform="translate(0,-12.5)"><g style="transform:rotate(18deg)"><line x1="0" y1="0" x2="0" y2="12"/></g><g style="animation:xwave 0.7s ease-in-out infinite"><line x1="0" y1="0" x2="0" y2="12"/></g></g><circle class="a4" stroke="none" cx="0" cy="-21" r="4.2"/></g></g></g></g></g><g transform="translate(780,72)"><g style="animation:htop 19s ease-in-out 6s infinite"><g class="s3"><g class="fig"><g transform="translate(0,-20)"><path d="M-3.5 20 L0 0 L3.5 20"/><line x1="0" y1="0" x2="0" y2="-15"/><path d="M-7 -22 L0 -12.5 L7 -22"/><circle class="a4" stroke="none" cx="0" cy="-21" r="4.2"/></g></g></g></g></g><g transform="translate(0,197)"><g style="animation:hrun 24s linear 1s infinite"><g class="s4"><g class="fig"><g style="animation:xbob 0.21s ease-in-out infinite"><g transform="translate(0,-20)"><g style="animation:xthigh 0.42s linear 0.00s infinite"><line x1="0" y1="0" x2="0" y2="10"/><g transform="translate(0,10)"><g style="animation:xshin 0.42s linear 0.00s infinite"><line x1="0" y1="0" x2="0" y2="10"/></g></g></g><g style="animation:xthigh 0.42s linear -0.21s infinite"><line x1="0" y1="0" x2="0" y2="10"/><g transform="translate(0,10)"><g style="animation:xshin 0.42s linear -0.21s infinite"><line x1="0" y1="0" x2="0" y2="10"/></g></g></g><line x1="0" y1="0" x2="4" y2="-15"/><g transform="translate(3.4,-12.5)"><g style="animation:xarm 0.42s linear -0.21s infinite"><line x1="0" y1="0" x2="0" y2="7"/><g transform="translate(0,7)"><g style="transform:rotate(-85deg)"><line x1="0" y1="0" x2="0" y2="6"/></g></g></g><g style="animation:xarm 0.42s linear 0.00s infinite"><line x1="0" y1="0" x2="0" y2="7"/><g transform="translate(0,7)"><g style="transform:rotate(-85deg)"><line x1="0" y1="0" x2="0" y2="6"/></g></g></g></g><circle class="a4" stroke="none" cx="6" cy="-21" r="4.2"/></g></g></g></g></g></g>
 <g transform="translate(10,0)">
 <text x="2" y="48" class="mute r" font-size="18">hey there, i'm</text>
 <text x="0" y="118" class="fg r" font-size="72" font-weight="700" style="animation-delay:.12s">aarav</text>

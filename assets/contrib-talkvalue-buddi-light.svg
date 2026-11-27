@@ -37,6 +37,15 @@
 .ico{stroke:#656d76;stroke-width:1.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .dotfill{fill:#656d76}
 
+.fig{fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+@keyframes xthigh{0%,100%{transform:rotate(-42deg)}50%{transform:rotate(38deg)}}
+@keyframes xshin{0%,100%{transform:rotate(12deg)}30%{transform:rotate(18deg)}55%{transform:rotate(62deg)}78%{transform:rotate(96deg)}}
+@keyframes xarm{0%,100%{transform:rotate(42deg)}50%{transform:rotate(-48deg)}}
+@keyframes xbob{0%,50%,100%{transform:translateY(0)}25%,75%{transform:translateY(-2.5px)}}
+@keyframes xwave{0%,100%{transform:rotate(-130deg)}50%{transform:rotate(-170deg)}}
+
+@keyframes pk{0%,48%{transform:translateY(0)}55%,80%{transform:translateY(-22px)}63.5%{transform:translateY(-22px) rotate(-7deg)}71.5%{transform:translateY(-22px) rotate(7deg)}86%,100%{transform:translateY(0)}}
+
 </style>
 <g class="a3">
 <rect class="card" x=".5" y=".5" width="409" height="131" rx="12"/>
@@ -47,5 +56,6 @@
 <text x="24" y="80" class="mute r" font-size="13" style="animation-delay:0.48s">buddy lives here now.</text>
 <g class="f" style="animation-delay:0.70s"><rect class="tag" x="24" y="96" width="54" height="20" rx="10"/><text x="33" y="110" class="faint" font-size="11">swift</text></g>
 <g class="f" style="animation-delay:0.80s"><g class="ico" transform="translate(366.8,106)"><circle cx="-3.5" cy="-4.5" r="1.7"/><circle cx="-3.5" cy="4.5" r="1.7"/><path d="M-3.5 -2.8v5.6"/><circle cx="3.5" cy="4.5" r="1.7"/><path d="M3.5 2.8V-1.5a2 2 0 0 0-2-2H-.5M1 -5.5l-2 2 2 2"/></g><text x="378.8" y="110.5" class="mute mono" font-size="12">1</text></g><g class="f" style="animation-delay:0.88s"><g class="ico" transform="translate(318.4,106)"><path d="M0.00 -6.20 L1.59 -2.18 L5.90 -1.92 L2.57 0.83 L3.64 5.02 L0.00 2.70 L-3.64 5.02 L-2.57 0.83 L-5.90 -1.92 L-1.59 -2.18Z"/></g><text x="330.4" y="110.5" class="mute mono" font-size="12">92</text></g>
+<g transform="translate(250,180)"><g style="animation:pk 17s ease-in-out 12.2s infinite"><g class="s4"><g class="fig"><g transform="translate(0,-20)"><path d="M-3.5 20 L0 0 L3.5 20"/><line x1="0" y1="0" x2="0" y2="-15"/><path d="M-7 -22 L0 -12.5 L7 -22"/><circle class="a4" stroke="none" cx="0" cy="-21" r="4.2"/></g></g></g></g></g>
 </g>
 </svg>
