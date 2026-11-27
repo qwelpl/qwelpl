@@ -325,22 +325,17 @@ def header(t, s):
             f'<text x="{px + 22}" y="{y}" class="faint" font-size="12">{k}</text>'
             f'<text x="{px + pw - 22}" y="{y}" class="fg mono" font-size="12" text-anchor="end">{escape(v)}</text></g>'
         )
+    duo = header_scene(1.35)
     extra = f"""
 .word{{font-family:{SANS};font-size:22px;opacity:0;animation:cyc {cycle}s ease-in-out infinite}}
 .ghost{{fill:transparent}}
 .hl{{font-weight:500}}
 @keyframes cyc{{0%{{opacity:0}}{pct*0.15:.2f}%{{opacity:1}}{pct*0.85:.2f}%{{opacity:1}}{pct:.2f}%{{opacity:0}}100%{{opacity:0}}}}
 .sep{{stroke:{t['border']};stroke-width:1}}
-{FIG_CSS}
-{peek("hside", "rotate(0)", "rotate(-40deg)", at=58, out=82, wobble=("rotate(4deg)", "rotate(-3deg)"))}
-{peek("htop", "translateY(0)", "translateY(-15px)", at=40, out=60, wobble=("translateX(-4px)", "translateX(4px)"))}
-@keyframes hrun{{0%{{transform:translateX(-40px)}}34%{{transform:translateX({w + 40}px)}}100%{{transform:translateX({w + 40}px)}}}}
+{fig_css(t['bg'])}
+{duo.css()}
 """
-    hide = (
-        cameo(px + 14, 150, "hside 15s ease-in-out 2.5s infinite", stand_fig("s4"))
-        + cameo(px + pw - 60, py + 50, "htop 19s ease-in-out 6s infinite", stand_fig("s3", "up"))
-        + cameo(0, h - 3, "hrun 24s linear 1s infinite", run_fig(0.42, "s4"))
-    )
+    hide = duo.svg(-0.5, scale=1.35)
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
 {style(t, extra)}
 {hide}
@@ -389,7 +384,11 @@ def card(t, p, i, k=0):
     if owner:
         title = f'<tspan class="mute" font-weight="400">{escape(owner)} / </tspan>{title}'
 
-    pk_css, pk = card_cameo(k, w, h)
+    who = card_scene(w, h - 3, k, 1.0)
+    pk_css = who.css()
+    pk = who.svg(-k * 2.3, scale=1.0)
+    if k % 2:
+        pk = f'<g transform="translate({w},0) scale(-1,1)">{pk}</g>'
     extra = f"""
 .edge{{fill:none;stroke:{t['fg']};stroke-width:1.2;stroke-dasharray:1100;stroke-dashoffset:1100;opacity:.55;animation:draw 1.8s cubic-bezier(.6,0,.2,1) {0.15 * i:.2f}s forwards, fade-out 1.2s ease {1.9 + 0.15 * i:.2f}s forwards, e4 {DRIFT}s ease-in-out infinite}}
 @keyframes fade-out{{to{{opacity:0}}}}
@@ -397,7 +396,7 @@ def card(t, p, i, k=0):
 .arrow{{stroke:{t['mute']};stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round}}
 .ico{{stroke:{t['mute']};stroke-width:1.4;fill:none;stroke-linecap:round;stroke-linejoin:round}}
 .dotfill{{fill:{t['mute']}}}
-{FIG_CSS}
+{fig_css(t['card'])}
 {pk_css}
 """
     d = 0.15 * i
@@ -425,13 +424,13 @@ def card(t, p, i, k=0):
 {style(t, extra)}
 <rect class="card" x=".5" y=".5" width="{w - 1}" height="{h - 1}" rx="12"/>
 <rect class="edge" x=".5" y=".5" width="{w - 1}" height="{h - 1}" rx="12"/>
+{pk}
 <text x="24" y="38" class="fg r" font-size="17" font-weight="600" style="animation-delay:{d + 0.2:.2f}s">{title}</text>
 <g class="r" style="animation-delay:{d + 0.3:.2f}s"><path class="arrow" d="M376 26 l8 8 l-8 8 M368 34 h15"/></g>
 <text x="24" y="62" class="mute r" font-size="13" style="animation-delay:{d + 0.4:.2f}s">{escape(p['desc'][0])}</text>
 <text x="24" y="80" class="mute r" font-size="13" style="animation-delay:{d + 0.48:.2f}s">{escape(p['desc'][1])}</text>
 {''.join(tags)}
 {''.join(meta)}
-{pk}
 </svg>"""
 
 
@@ -444,14 +443,15 @@ def loop(first, delay, again="again"):
 
 def stats(t, s):
     w, h = 840, 250
+    sr = stats_scene(w, 101.5, 1.25)
     extra = f"""
 .cell{{opacity:0;transform-box:fill-box;transform-origin:center}}
 @keyframes pop{{from{{opacity:0;transform:scale(.3)}}to{{opacity:1;transform:scale(1)}}}}
 @keyframes wave{{0%{{opacity:1;transform:scale(1)}}2.5%{{opacity:.1;transform:scale(.35)}}6%{{opacity:1;transform:scale(1)}}100%{{opacity:1;transform:scale(1)}}}}
 @keyframes again{{0%{{opacity:1;transform:translateY(0)}}2%{{opacity:0;transform:translateY(8px)}}6%{{opacity:1;transform:translateY(0)}}100%{{opacity:1;transform:translateY(0)}}}}
 .sep{{stroke:{t['border']};stroke-width:1}}
-{FIG_CSS}
-@keyframes srun{{0%{{transform:translateX({w + 40}px)}}40%{{transform:translateX(-40px)}}100%{{transform:translateX(-40px)}}}}
+{fig_css(t['card'])}
+{sr.css()}
 """
     items = [
         (f"{s['contributions']:,}", "contributions"),
@@ -507,8 +507,8 @@ def stats(t, s):
 <rect class="card" x=".5" y=".5" width="{w - 1}" height="{h - 1}" rx="12"/>
 {''.join(cols)}
 <line class="sep f" x1="24" y1="102" x2="{w - 24}" y2="102" style="animation-delay:.4s"/>
+{sr.svg(-4, scale=1.25)}
 {''.join(cells)}
-{cameo(0, 101.5, "srun 21s linear 5s infinite", run_fig(0.4, "s4"), "scale(-1,1)")}
 <text x="24" y="232" class="faint f" font-size="10" style="animation-delay:2s">last 12 months  ·  updated {updated}</text>
 {''.join(legend)}
 </svg>"""
@@ -593,26 +593,10 @@ def ghstats(t, s):
     spots = [(cx0 - 14, base)] + [
         (cx0 + i * bw + bw / 2, base - max(2, (base - top) * n / peak)) for i, (_, n) in enumerate(months)
     ] + [(cx1 + 12, base)]
-    hop, t0 = 0.55, 2.2
-    keys = [f"0%{{opacity:0;transform:translate({spots[0][0]:.1f}px,{spots[0][1]:.1f}px)}}"]
-    keys.append(f"{100 * (t0 - .4) / LOOP:.2f}%{{opacity:0;transform:translate({spots[0][0]:.1f}px,{spots[0][1]:.1f}px)}}")
-    for j in range(len(spots) - 1):
-        (xa, ya), (xb, yb) = spots[j], spots[j + 1]
-        lift = 10 + max(0, ya - yb) * 0.6
-        for q in range(6):
-            u = q / 6
-            x = xa + (xb - xa) * u
-            y = ya + (yb - ya) * u - lift * 4 * u * (1 - u)
-            keys.append(f"{100 * (t0 + (j + u) * hop) / LOOP:.2f}%{{opacity:1;transform:translate({x:.1f}px,{y:.1f}px)}}")
-    end = t0 + (len(spots) - 1) * hop
-    last = f"translate({spots[-1][0]:.1f}px,{spots[-1][1]:.1f}px)"
-    keys.append(f"{100 * end / LOOP:.2f}%{{opacity:1;transform:{last}}}")
-    keys.append(f"{100 * (end + 1.6) / LOOP:.2f}%{{opacity:1;transform:{last}}}")
-    keys.append(f"{100 * (end + 2.1) / LOOP:.2f}%,100%{{opacity:0;transform:{last}}}")
-    extra += FIG_CSS + "@keyframes ghop{" + "".join(keys) + "}"
-    hopper = (
-        f'<g style="opacity:0;animation:ghop {LOOP}s linear {LOOP_START}s infinite">{stand_fig("s4", "up")}</g>'
-    )
+    best = 1 + max(range(len(months)), key=lambda i: months[i][1])
+    gh = bars_scene(spots, best, base, 1.2)
+    extra += fig_css(t['card']) + gh.css()
+    hopper = gh.svg(LOOP_START - gh.T, scale=1.2)
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
 {style(t, extra)}
 <rect class="card" x=".5" y=".5" width="{w - 1}" height="{h - 1}" rx="12"/>
@@ -627,25 +611,24 @@ def ghstats(t, s):
 <text x="{rx}" y="{ry + 10}" class="fg r" font-size="28" font-weight="700" text-anchor="middle" style="animation-delay:.9s">{level}</text>
 <text x="{rx}" y="{ry + rr + 30}" class="faint r" font-size="11" text-anchor="middle" style="animation-delay:1s">top {pct:.0f}%</text>
 {''.join(items)}
-{''.join(bars)}
 {hopper}
+{''.join(bars)}
 </svg>"""
 
 
 def languages(t, s):
-    w, h = 840, 96
+    w, h = 840, 112
     top = s["langs"][:5]
     rest = sum(v for _, v in s["langs"][5:])
     if rest:
         top.append(("other", rest))
     total = sum(v for _, v in top) or 1
+    rope = rope_scene(40, 800, 45.5, 0.85)
     extra = """
 .seg{transform-box:fill-box;transform-origin:left;transform:scaleX(0)}
 @keyframes grow{to{transform:scaleX(1)}}
 @keyframes regrow{0%{transform:scaleX(1)}3%{transform:scaleX(0)}9%{transform:scaleX(1)}100%{transform:scaleX(1)}}
-@keyframes lwalk{0%{transform:translateX(40px)}48%{transform:translateX(800px)}50%{transform:translateX(800px)}98%{transform:translateX(40px)}100%{transform:translateX(40px)}}
-@keyframes lturn{0%,48%{transform:scaleX(1)}50%,98%{transform:scaleX(-1)}100%{transform:scaleX(1)}}
-""" + FIG_CSS
+""" + fig_css(t['card']) + rope.css()
     bx, bw = 24, w - 48
     segs = []
     legend = []
@@ -655,21 +638,21 @@ def languages(t, s):
         sw = bw * v / total
         paint = ""
         segs.append(
-            f'<g class="a{max(4 - i, 1)}"><rect class="seg" x="{x:.2f}" y="28" width="{max(sw - 2, 1):.2f}" height="8" rx="2"{paint} style="{loop("grow 1s cubic-bezier(.6,0,.2,1)", 0.1 + i * 0.12, "regrow")}"/></g>'
+            f'<g class="a{max(4 - i, 1)}"><rect class="seg" x="{x:.2f}" y="46" width="{max(sw - 2, 1):.2f}" height="8" rx="2"{paint} style="{loop("grow 1s cubic-bezier(.6,0,.2,1)", 0.1 + i * 0.12, "regrow")}"/></g>'
         )
         x += sw
         label = f"{name.lower()}  {100 * v / total:.1f}%"
         legend.append(
-            f'<g class="r" style="animation-delay:{0.6 + i * 0.08:.2f}s"><g class="a{max(4 - i, 1)}"><circle cx="{lx + 5}" cy="70" r="4"{paint} style="stroke:{t["border"]}"/></g>'
-            f'<text x="{lx + 16}" y="74" class="mute" font-size="12">{escape(label)}</text></g>'
+            f'<g class="r" style="animation-delay:{0.6 + i * 0.08:.2f}s"><g class="a{max(4 - i, 1)}"><circle cx="{lx + 5}" cy="86" r="4"{paint} style="stroke:{t["border"]}"/></g>'
+            f'<text x="{lx + 16}" y="90" class="mute" font-size="12">{escape(label)}</text></g>'
         )
         lx += len(label) * 6.6 + 40
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
 {style(t, extra)}
 <rect class="card" x=".5" y=".5" width="{w - 1}" height="{h - 1}" rx="12"/>
-<clipPath id="c"><rect x="{bx}" y="28" width="{bw}" height="8" rx="4"/></clipPath>
+<clipPath id="c"><rect x="{bx}" y="46" width="{bw}" height="8" rx="4"/></clipPath>
 <g clip-path="url(#c)">{''.join(segs)}</g>
-<g transform="translate(0,27.5)"><g style="animation:lwalk 34s ease-in-out 1.5s infinite"><g transform="scale(.55)"><g style="animation:lturn 34s linear 1.5s infinite">{run_fig(0.7, "s4")}</g></g></g></g>
+{rope.svg(-1, scale=0.85)}
 {''.join(legend)}
 </svg>"""
 
@@ -783,76 +766,495 @@ def write_readme(contrib, icons):
     readme.write_text(text)
 
 
-FIG_CSS = """
-.fig{fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-@keyframes xthigh{0%,100%{transform:rotate(-42deg)}50%{transform:rotate(38deg)}}
-@keyframes xshin{0%,100%{transform:rotate(12deg)}30%{transform:rotate(18deg)}55%{transform:rotate(62deg)}78%{transform:rotate(96deg)}}
-@keyframes xarm{0%,100%{transform:rotate(42deg)}50%{transform:rotate(-48deg)}}
-@keyframes xbob{0%,50%,100%{transform:translateY(0)}25%,75%{transform:translateY(-2.5px)}}
-@keyframes xwave{0%,100%{transform:rotate(-130deg)}50%{transform:rotate(-170deg)}}
+def fig_css(face):
+    return f"""
+.fig{{fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}}
+.eye{{fill:{face}}}
 """
 
 
-def run_fig(step, cls="s4"):
-    def limb(name, a, b, off, inner):
-        return (
-            f'<g style="animation:{name} {step}s linear {off:.2f}s infinite">'
-            f'<line x1="0" y1="0" x2="0" y2="{a}"/>'
-            f'<g transform="translate(0,{a})"><g style="{inner}"><line x1="0" y1="0" x2="0" y2="{b}"/></g></g></g>'
+# run cycle, as (phase, angle) loops
+RUN_THIGH = [(0, -42), (.5, 38), (1, -42)]
+RUN_SHIN = [(0, 12), (.3, 18), (.55, 62), (.78, 96), (1, 12)]
+RUN_ARM = [(0, 42), (.5, -48), (1, 42)]
+RUN_BOB = [(0, 0), (.25, -2.5), (.5, 0), (.75, -2.5), (1, 0)]
+
+STAND = dict(t1=5, s1=3, t2=-5, s2=4, a1=-8, f1=-30, a2=10, f2=-22, tor=0, sink=0, body=0)
+CHANNELS = ["pos", "face", "body", "sink", "tor", "t1", "s1", "t2", "s2", "a1", "f1", "a2", "f2", "head", "eyes"]
+
+
+def cyc(keys, ph):
+    ph %= 1
+    for (p0, v0), (p1, v1) in zip(keys, keys[1:]):
+        if p0 <= ph <= p1:
+            return v0 + (v1 - v0) * (ph - p0) / (p1 - p0)
+    return keys[-1][1]
+
+
+def breaks(keys, ph0, ph1):
+    import math
+    out = []
+    for n in range(math.floor(ph0), math.ceil(ph1) + 1):
+        for p, _ in keys:
+            if ph0 < n + p < ph1:
+                out.append(n + p)
+    return sorted(out)
+
+
+def sink_for(t1, s1, t2, s2):
+    import math
+    foot = lambda a, b: 10 * math.cos(math.radians(a)) + 10 * math.cos(math.radians(a + b))
+    return 20 - max(foot(t1, s1), foot(t2, s2))
+
+
+class Actor:
+    """A stick figure whose every joint is keyframed on one shared timeline, so it can run, slow down,
+    stand, look around, jump and hide without swapping drawings."""
+
+    def __init__(self, name, x, y, face=1):
+        self.name, self.t = name, 0.0
+        self.keys = {c: [] for c in CHANNELS}
+        self.cur = dict(STAND, pos=(x, y), face=face, head=0, eyes=1.6)
+        self.start = dict(self.cur)
+        self.mark()
+
+    # --- timeline plumbing ---
+    def put(self, c, t, v):
+        self.keys[c].append((t, v))
+        self.cur[c] = v
+
+    def mark(self, cs=None):
+        for c in cs or CHANNELS:
+            self.put(c, self.t, self.cur[c])
+
+    def to(self, dur, **vals):
+        if any(k in vals for k in ("t1", "s1", "t2", "s2")) and "sink" not in vals:
+            legs = {k: vals.get(k, self.cur[k]) for k in ("t1", "s1", "t2", "s2")}
+            vals["sink"] = sink_for(**legs)
+        self.mark(list(vals))
+        self.t += dur
+        for c, v in vals.items():
+            self.put(c, self.t, v)
+        return self
+
+    def wait(self, d):
+        self.t += d
+        return self
+
+    # --- moves ---
+    def stand(self, d=0.2):
+        return self.to(d, **STAND)
+
+    def turn(self):
+        return self.to(0.16, face=-self.cur["face"])
+
+    def face_to(self, x):
+        if (x - self.cur["pos"][0]) * self.cur["face"] < 0:
+            self.turn()
+
+    def glance(self, eyes, head=0, d=0.22):
+        return self.to(d, eyes=eyes, head=head)
+
+    def tp(self, x, y=None):
+        y = self.cur["pos"][1] if y is None else y
+        return self.to(0.01, pos=(x, y))
+
+    def run_to(self, x, speed=170, P=0.36, amp=1.0, balance=False):
+        self.face_to(x)
+        x0, y = self.cur["pos"]
+        dur = abs(x - x0) / speed
+        t0 = self.t
+        blend = min(0.15, dur / 3)
+        self.mark()
+        self.glance(1.6, 0, d=0)
+        self.t = t0
+        phase = lambda t: (t - t0) / P
+        legs = {
+            "t1": (RUN_THIGH, 0, amp), "s1": (RUN_SHIN, 0, amp),
+            "t2": (RUN_THIGH, .5, amp), "s2": (RUN_SHIN, .5, amp),
+            "body": (RUN_BOB, 0, amp),
+        }
+        if balance:
+            fixed = dict(a1=-85, f1=-15, a2=85, f2=15)
+        else:
+            legs.update({"a1": (RUN_ARM, .5, amp), "a2": (RUN_ARM, 0, amp)})
+            fixed = dict(f1=-85 * min(1, amp + .3), f2=-85 * min(1, amp + .3))
+        end = t0 + dur
+        for c, (k, off, a) in legs.items():
+            times = [t0 + blend] + [t0 + b * P - off * P for b in breaks(k, phase(t0 + blend) + off, phase(end) + off)] + [end]
+            for t in sorted(set(round(q, 3) for q in times)):
+                self.put(c, t, a * cyc(k, phase(t) + off))
+        for c, v in fixed.items():
+            self.put(c, t0 + blend, v)
+            self.put(c, end, v)
+        self.put("tor", t0 + blend, 9 * amp)
+        self.put("tor", end, 9 * amp)
+        self.put("sink", t0 + blend, 0)
+        self.put("sink", end, 0)
+        self.put("pos", t0, (x0, y))
+        self.put("pos", end, (x, y))
+        self.t = end
+        self.to(0.2, pos=(x + self.cur["face"] * 4 * amp, y), **STAND)
+        return self
+
+    def walk_to(self, x, **kw):
+        return self.run_to(x, speed=kw.pop("speed", 55), P=kw.pop("P", 0.6), amp=kw.pop("amp", 0.45), **kw)
+
+    def crouch(self, d=0.12, deep=1.0):
+        return self.to(d, t1=-40 * deep, s1=75 * deep, t2=-30 * deep, s2=70 * deep,
+                       a1=25, f1=-40, a2=35, f2=-40, tor=14 * deep)
+
+    def jump(self, h=14):
+        self.crouch()
+        self.to(0.14, body=-h * 0.7, t1=-8, s1=10, t2=6, s2=14, a1=-165, f1=-15, a2=-150, f2=-20, tor=-4, sink=0)
+        self.to(0.12, body=-h)
+        self.to(0.13, body=-h * 0.55, t1=-20, s1=25, t2=-10, s2=20, sink=0)
+        self.to(0.1, body=0, a1=-120, a2=-110)
+        self.crouch(0.08, 0.6)
+        return self.stand(0.2)
+
+    def hop_to(self, x, y, lift=12):
+        self.face_to(x)
+        x0, y0 = self.cur["pos"]
+        self.crouch(0.08, 0.8)
+        self.to(0.05, t1=-8, s1=10, t2=6, s2=14, a1=-160, a2=-150, f1=-15, f2=-15, tor=-3, sink=0)
+        for k in range(1, 7):
+            u = k / 6
+            self.to(0.055, pos=(x0 + (x - x0) * u, y0 + (y - y0) * u - lift * 4 * u * (1 - u)))
+        self.crouch(0.06, 0.6)
+        return self.stand(0.12)
+
+    def wave(self, n=3):
+        self.glance(0, -6)
+        self.to(0.18, a1=-150, f1=-40)
+        for i in range(n * 2):
+            self.to(0.2, f1=10 if i % 2 == 0 else -60)
+        return self.to(0.2, a1=STAND["a1"], f1=STAND["f1"])
+
+    def peek(self, d=1.4, lean=32):
+        self.to(0.3, tor=lean, head=-6)
+        self.glance(1.6, -10)
+        self.wait(d / 2)
+        self.glance(0.4, 8)
+        self.wait(d / 2)
+        return self.to(0.25, tor=0, head=0)
+
+    def dance(self, beat=0.3):
+        left = dict(a1=-160, f1=-10, a2=40, f2=-30, tor=-9, t1=-14, s1=12, t2=8, s2=6)
+        right = dict(a1=40, f1=-30, a2=160, f2=10, tor=9, t1=8, s1=6, t2=-14, s2=12)
+        self.glance(0, 0)
+        for pose in (left, right, left, right):
+            self.to(beat * 0.5, body=0, **pose)
+            self.to(beat * 0.5, body=2.5)
+        f = self.cur["face"]
+        self.to(0.12, body=0, face=-f, a1=-90, f1=0, a2=90, f2=0, tor=0, **{k: STAND[k] for k in ("t1", "s1", "t2", "s2")})
+        self.to(0.12, face=f)
+        self.to(0.12, face=-f)
+        self.to(0.12, face=f)
+        self.jump(10)
+        for i in range(4):
+            sway = 10 if i % 2 == 0 else -10
+            self.to(beat, a1=-150 - sway, f1=-15, a2=150 - sway, f2=15, tor=sway, body=1.5 if i % 2 else 0)
+        self.stand(0.25)
+        return self.glance(1.6, 0)
+
+    def hug(self, hold=1.4):
+        self.glance(1.6, 4)
+        self.to(0.28, a1=-78, f1=-72, a2=-62, f2=-78, tor=12, body=-1)
+        for i in range(3):
+            self.to(hold / 3, tor=17 if i % 2 == 0 else 9, head=8 if i % 2 == 0 else 2)
+        self.to(0.28, tor=0, head=0, body=0, **{k: STAND[k] for k in ("a1", "f1", "a2", "f2")})
+        return self
+
+    def look_around(self):
+        self.glance(1.6, -8).wait(0.45)
+        self.turn().glance(1.6, 4).wait(0.5)
+        self.turn().glance(0, 0).wait(0.35)
+        return self
+
+    def finish(self, T=None):
+        T = T or self.t + 0.01
+        assert T >= self.t - 1e-6, (self.name, T, self.t)
+        self.t = T
+        for c in CHANNELS:
+            self.put(c, T, self.start[c])
+        self.T = T
+        return self
+
+    # --- output ---
+    def fmt(self, c, v):
+        if c == "pos":
+            return f"transform:translate({v[0]:.1f}px,{v[1]:.1f}px)"
+        if c == "face":
+            return f"transform:scaleX({v:.2f})"
+        if c in ("body", "sink"):
+            return f"transform:translateY({v:.1f}px)"
+        if c == "eyes":
+            return f"transform:translateX({v:.1f}px)"
+        return f"transform:rotate({v:.0f}deg)"
+
+    def css(self):
+        out = []
+        for c, pts in self.keys.items():
+            pts = sorted(pts, key=lambda q: q[0])
+            slim = [pts[0]]
+            for i in range(1, len(pts) - 1):
+                if not (pts[i][1] == slim[-1][1] == pts[i + 1][1]):
+                    slim.append(pts[i])
+            slim.append(pts[-1])
+            keys = "".join(f"{100 * t / self.T:.3f}%{{{self.fmt(c, v)}}}" for t, v in slim)
+            out.append(f"@keyframes {self.name}-{c}{{{keys}}}")
+        return "\n".join(out)
+
+    def svg(self, delay=0.0, cls="s4", scale=1.0):
+        st = lambda c: f"animation:{self.name}-{c} {self.T:.2f}s linear {delay:.2f}s infinite"
+        g = lambda c, inner: f'<g style="{st(c)}">{inner}</g>'
+        leg = lambda a, b: g(a, '<line x1="0" y1="0" x2="0" y2="10"/><g transform="translate(0,10)">'
+                             + g(b, '<line x1="0" y1="0" x2="0" y2="10"/>') + '</g>')
+        arm = lambda a, b: g(a, '<line x1="0" y1="0" x2="0" y2="7"/><g transform="translate(0,7)">'
+                             + g(b, '<line x1="0" y1="0" x2="0" y2="7"/>') + '</g>')
+        face = g("eyes", '<circle class="eye" cx="-1.9" cy="-1" r=".9"/><circle class="eye" cx="1.9" cy="-1" r=".9"/>')
+        upper = (
+            '<line x1="0" y1="0" x2="0" y2="-15"/>'
+            f'<g transform="translate(0,-13)">{arm("a2", "f2")}{arm("a1", "f1")}</g>'
+            f'<g transform="translate(0,-20.6)">{g("head", "<circle class=\"a4\" stroke=\"none\" r=\"5.4\"/>" + face)}</g>'
         )
-    half = -step / 2
-    legs = "".join(limb("xthigh", 10, 10, o, f"animation:xshin {step}s linear {o:.2f}s infinite") for o in (0, half))
-    arms = "".join(limb("xarm", 7, 6, o, "transform:rotate(-85deg)") for o in (half, 0))
-    return (
-        f'<g class="{cls}"><g class="fig"><g style="animation:xbob {step / 2:.2f}s ease-in-out infinite">'
-        f'<g transform="translate(0,-20)">{legs}<line x1="0" y1="0" x2="4" y2="-15"/>'
-        f'<g transform="translate(3.4,-12.5)">{arms}</g>'
-        f'<circle class="a4" stroke="none" cx="6" cy="-21" r="4.2"/></g></g></g></g>'
-    )
+        body = f'<g transform="translate(0,-20)">{leg("t2", "s2")}{leg("t1", "s1")}{g("tor", upper)}</g>'
+        fig = g("face", g("body", g("sink", body)))
+        return f'<g class="{cls}"><g class="fig">{g("pos", f"<g transform=\"scale({scale})\">{fig}</g>")}</g></g>'
 
 
-def stand_fig(cls="s4", pose="wave", speed=0.7):
-    if pose == "up":
-        arms = '<path d="M-7 -22 L0 -12.5 L7 -22"/>'
+class Duo:
+    """Figures that share one clock, so they can react to each other."""
+
+    def __init__(self, *actors):
+        self.actors = actors
+
+    def finish(self, T=None):
+        T = T or max(a.t for a in self.actors) + 0.01
+        for a in self.actors:
+            a.finish(T)
+        self.T = T
+        return self
+
+    def css(self):
+        return "\n".join(a.css() for a in self.actors)
+
+    def svg(self, delay=0.0, scale=1.0):
+        cls = ["s4", "s3"]
+        return "".join(a.svg(delay, cls[i % 2], scale) for i, a in enumerate(self.actors))
+
+
+def sync(*xs):
+    t = max(a.t for a in xs)
+    for a in xs:
+        a.wait(t - a.t)
+
+
+def face_each(a, b):
+    a.face_to(b.cur["pos"][0])
+    b.face_to(a.cur["pos"][0])
+
+
+def high_five(a, b):
+    sync(a, b)
+    face_each(a, b)
+    sync(a, b)
+    for x in (a, b):
+        x.glance(1.6, -4)
+        x.crouch(0.1, 0.5)
+        x.to(0.14, body=-7, t1=-6, s1=8, t2=6, s2=10, sink=0, a1=-155, f1=-25, tor=-4)
+        x.to(0.1, body=-8)
+        x.to(0.14, body=0, a1=-140)
+        x.crouch(0.07, 0.5)
+        x.stand(0.2)
+    sync(a, b)
+
+
+def approach(mover, other, gap):
+    d = 1 if other.cur["pos"][0] > mover.cur["pos"][0] else -1
+    mover.run_to(other.cur["pos"][0] - d * (gap + 4))
+
+
+def dance_off(a, b):
+    sync(a, b)
+    face_each(a, b)
+    sync(a, b)
+    a.dance()
+    b.dance()
+    sync(a, b)
+
+
+def hug(a, b, S):
+    approach(a, b, 9 * S)
+    sync(a, b)
+    face_each(a, b)
+    sync(a, b)
+    a.hug()
+    b.hug()
+    sync(a, b)
+
+
+def tap(a, b):
+    """a reaches out and taps b, who jumps and spins round."""
+    sync(a, b)
+    a.to(0.15, a1=-95, f1=-30, tor=6).wait(0.15).to(0.18, a1=STAND["a1"], f1=STAND["f1"], tor=-6)
+    b.wait(0.2).glance(-1.6, 6, d=0.1)
+    b.jump(16)
+    b.turn()
+    a.wait(0.3).to(0.2, tor=0)
+    sync(a, b)
+
+
+def header_scene(S):
+    g = 176
+    a = Actor("ha", 600, g, face=-1)
+    b = Actor("hb", 720, g, face=-1)
+    a.wait(1).walk_to(525).peek().run_to(340).look_around()
+    b.wait(4.2).walk_to(340 + 18 * S, speed=60)
+    tap(b, a)
+    hug(b, a, S)
+    b.run_to(b.cur["pos"][0] + 26 * S)
+    dance_off(a, b)
+    for x in (a, b):
+        x.glance(0, 0).wait(0.4)
+    b.turn().run_to(650)
+    a.wait(0.35).run_to(690)
+    sync(a, b)
+    for x in (a, b):
+        x.wait(1.2)
+    a.run_to(600)
+    b.run_to(720).turn()
+    return Duo(a, b).finish()
+
+
+def card_scene(w, g, k, S):
+    a = Actor("pa", w + 30, g, face=-1)
+    b = Actor("pb", w + 30, g, face=-1)
+    a.wait(0.5).run_to(250).look_around()
+    b.wait(2.4).walk_to(w - 22).glance(1.6, -6).wait(0.3)
+    sync(a, b)
+    a.turn().glance(1.6, 0).wave(2)
+    b.wait(0.45).wave(2)
+    sync(a, b)
+    if k % 3 == 0:
+        b.run_to(250 + 18 * S)
+        high_five(a, b)
+    elif k % 3 == 1:
+        b.run_to(250 + 30 * S)
+        dance_off(a, b)
     else:
-        arms = (
-            '<g transform="translate(0,-12.5)"><g style="transform:rotate(18deg)"><line x1="0" y1="0" x2="0" y2="12"/></g>'
-            f'<g style="animation:xwave {speed}s ease-in-out infinite"><line x1="0" y1="0" x2="0" y2="12"/></g></g>'
-        )
-    return (
-        f'<g class="{cls}"><g class="fig"><g transform="translate(0,-20)">'
-        '<path d="M-3.5 20 L0 0 L3.5 20"/><line x1="0" y1="0" x2="0" y2="-15"/>'
-        f'{arms}<circle class="a4" stroke="none" cx="0" cy="-21" r="4.2"/></g></g></g>'
-    )
+        hug(b, a, S)
+    a.turn().run_to(-30)
+    b.wait(0.35).run_to(-30)
+    sync(a, b)
+    for x in (a, b):
+        x.tp(w + 30).wait(0.6 + (k % 3) * 0.6)
+    return Duo(a, b).finish()
 
 
-def cameo(x, y, anim, body, inner=""):
-    if inner:
-        body = f'<g transform="{inner}">{body}</g>'
-    return f'<g transform="translate({x},{y})"><g style="animation:{anim}">{body}</g></g>'
+def stats_scene(w, g, S):
+    a = Actor("sa", w + 40, g, face=-1)
+    b = Actor("sb", w + 90, g, face=-1)
+    a.wait(1).run_to(620)
+    b.wait(1.3).run_to(620 + 22 * S)
+    sync(a, b)
+    for x in (a, b):
+        x.glance(1.6, 16).wait(0.8)
+    a.turn().glance(1.6, 0)
+    b.wait(0.2).glance(1.6, -4)
+    sync(a, b)
+    dance_off(a, b)
+    b.run_to(430)
+    a.wait(0.3).run_to(430 + 22 * S)
+    sync(a, b)
+    b.turn().wave(2)
+    a.wait(0.3).wave(2)
+    sync(a, b)
+    b.turn().run_to(-40)
+    a.wait(0.3).run_to(-90)
+    sync(a, b)
+    a.wait(2).tp(w + 40).turn()
+    b.wait(2).tp(w + 90).turn()
+    return Duo(a, b).finish()
 
 
-def peek(name, hidden, shown, at=55, out=80, wobble=None):
-    a, b = f"transform:{hidden}", f"transform:{shown}"
-    mid = ""
-    if wobble:
-        m = (at + out) / 2
-        mid = f"{m - 4:.1f}%{{transform:{shown} {wobble[0]}}}{m + 4:.1f}%{{transform:{shown} {wobble[1]}}}"
-    return f"@keyframes {name}{{0%,{at - 7}%{{{a}}}{at}%,{out}%{{{b}}}{mid}{out + 6}%,100%{{{a}}}}}"
+def bars_scene(spots, best, floor, S):
+    left, right = spots[0], spots[-1]
+    a = Actor("ga", right[0], floor, face=-1)
+    b = Actor("gb", 870, floor, face=-1)
+    a.run_to(left[0] + 10)
+    b.wait(0.25).run_to(left[0] - 6).glance(1.6, 0)
+    a.glance(0, 0).wait(0.25).turn().glance(1.6, -6).wait(0.2)
+    sync(a, b)
+    b.turn().glance(1.6, -10)
+    for j, (x, y) in enumerate(spots[1:], 1):
+        lift = 10 + max(0, a.cur["pos"][1] - y) * 0.6
+        a.hop_to(x, y, lift)
+        if j == best:
+            sync(a, b)
+            a.glance(0.6, 14).wave(2)
+            b.wait(0.3).jump(13).wave(1)
+            sync(a, b)
+            b.glance(1.6, -10)
+    assert a.t < 14.2, a.t
+    a.run_to(left[0] - 6 + 18 * S)
+    b.face_to(a.cur["pos"][0])
+    high_five(b, a)
+    b.turn().run_to(right[0])
+    a.wait(0.3).run_to(right[0] - 24 * S)
+    sync(a, b)
+    for x in (a, b):
+        x.look_around()
+    b.run_to(870)
+    a.run_to(right[0]).wait(0.6)
+    if a.cur["face"] > 0:
+        a.turn()
+    if b.cur["face"] > 0:
+        b.turn()
+    return Duo(a, b).finish(28)
 
 
-def card_cameo(k, w, h):
-    v = k % 3
-    dur, delay = 17, 2 + k * 1.7
-    anim = f"pk {dur}s ease-in-out {delay:.1f}s infinite"
-    if v == 0:
-        css = peek("pk", "translateY(0)", "translateY(-22px)", wobble=("rotate(-7deg)", "rotate(7deg)"))
-        return css, cameo(250, h + 48, anim, stand_fig("s4", "up"))
-    if v == 1:
-        css = peek("pk", "rotate(0)", "rotate(-38deg)")
-        return css, cameo(w + 14, 96, anim, stand_fig("s4"), "scale(-1,1)")
-    css = peek("pk", "rotate(0)", "rotate(38deg)")
-    return css, cameo(-14, 96, anim, stand_fig("s4"))
+def rope_scene(x0, x1, y, S):
+    a = Actor("la", x0, y, face=1)
+    b = Actor("lb", x1, y, face=-1)
+    mid = (x0 + x1) / 2
+    gap = 26 * S
+
+    def meet(lead, duck, extra):
+        near = 7 * S if extra == "hug" else gap / 2
+        lead.walk_to(mid - lead.cur["face"] * near, balance=True)
+        duck.walk_to(mid - duck.cur["face"] * near, balance=True)
+        sync(lead, duck)
+        for x in (lead, duck):
+            x.glance(1.6, 0).wait(0.4)
+        if extra == "hug":
+            lead.hug()
+            duck.hug()
+        else:
+            lead.dance()
+            duck.dance()
+        sync(lead, duck)
+        duck.crouch(0.3, 1.1).wait(0.9)
+        lead.wait(0.2).hop_to(mid + lead.cur["face"] * gap, y, 28 * S)
+        sync(lead, duck)
+        duck.stand(0.25)
+        for x in (lead, duck):
+            x.turn().glance(0, 0)
+        lead.wave(2)
+        duck.wait(0.3).wave(1)
+        sync(lead, duck)
+        lead.turn()
+        duck.turn()
+
+    meet(a, b, "hug")
+    a.walk_to(x1, balance=True).turn()
+    b.walk_to(x0, balance=True).turn()
+    sync(a, b)
+    meet(b, a, "dance")
+    b.walk_to(x1, balance=True).turn()
+    a.walk_to(x0, balance=True).turn()
+    return Duo(a, b).finish()
 
 
 def tint(svg):
